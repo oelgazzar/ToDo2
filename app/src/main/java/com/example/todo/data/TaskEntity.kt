@@ -12,20 +12,22 @@ data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String,
+    val details: String? = null,
     val category: Category? = null,
-    val completed: Boolean,
+    val completed: Boolean = false,
     val dueDate: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: String = LocalDate.now().toString()
 )
 
 fun TaskEntity.toDomain(): Task {
     return Task(
         id = id,
         title = title,
+        details = details,
         category = category,
         completed = completed,
         dueDate = dueDate?.let { LocalDate.parse(it) },
-        createdAt = Instant.ofEpochMilli(createdAt)
+        createdAt = LocalDate.parse(createdAt)
     )
 }
 
@@ -35,10 +37,11 @@ fun Task.toEntity(): TaskEntity {
     return TaskEntity(
         id = id,
         title = title,
+        details = details,
         category = category,
         completed = completed,
         dueDate = dueDate?.toString(),
-        createdAt = createdAt?.toEpochMilli() ?: System.currentTimeMillis()
+        createdAt = createdAt.toString()
     )
 }
 

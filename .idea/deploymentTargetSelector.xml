@@ -4,16 +4,16 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-28T12:23:00.039326200Z">
+        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCW31A762E" />
+              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="insertTask_readIt_thenDelete()">
+      <SelectionState runConfigName="HomeContentPrev">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-09-28T12:23:00.039326200Z">
           <Target type="DEFAULT_BOOT">
@@ -24,7 +24,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="insertTask_readIt_thenUpdate()">
+      <SelectionState runConfigName="TaskFormSheetPrev">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-09-28T12:23:00.039326200Z">
           <Target type="DEFAULT_BOOT">
@@ -35,7 +35,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TaskDaoTest">
+      <SelectionState runConfigName="TaskListPrev">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-09-28T12:23:00.039326200Z">
           <Target type="DEFAULT_BOOT">

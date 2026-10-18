@@ -1,4 +1,4 @@
-package com.example.todo.ui
+package com.example.todo.ui.utils
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

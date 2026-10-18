@@ -6,16 +6,13 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Test
-import org.junit.rules.TestWatcher
 
 class HomeViewModelTest {
     val repo = FakeTaskRepository()
@@ -27,19 +24,19 @@ class HomeViewModelTest {
         val viewModel = HomeViewModel(FakeTaskRepository())
 
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.tasks.collect()
+            viewModel.uiState.collect()
         }
 
-        viewModel.addNewTask("Test Task")
+        viewModel.addTask("Test Task")
         advanceUntilIdle()
-        val task1 = viewModel.tasks.value.first()
+        val task1 = viewModel.uiState.value.first()
 
         // Assert against the actual state flow value directly
         assertEquals("Test Task", task1.title)
         assertEquals(false, task1.completed)
 
         viewModel.toggleCompleteTask(task1, true)
-        val task2 = viewModel.tasks.value.first()
+        val task2 = viewModel.uiState.value.first()
         assertEquals(true, task2.completed)
 
     }

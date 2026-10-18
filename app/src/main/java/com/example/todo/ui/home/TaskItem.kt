@@ -1,0 +1,135 @@
+package com.example.todo.ui.home
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.test.check
+import com.example.test.radio_button_unchecked
+import com.example.todo.models.Category
+import com.example.todo.models.Task
+import com.example.todo.ui.theme.AppTheme
+import com.example.todo.ui.utils.toUi
+
+@Composable
+fun TaskItem(
+    task: Task,
+    onTaskClicked: () -> Unit,
+    onTaskCompleteStatusChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val categoryUi = task.category?.toUi()
+    
+    Column(
+        modifier = Modifier
+                .clickable(onClick = onTaskClicked)
+                .then(modifier)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                if (task.completed) check else radio_button_unchecked,
+                null,
+                tint = if (task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        onClick = { onTaskCompleteStatusChanged(!task.completed) }
+                    )
+            )
+
+            Text(
+                text = task.title,
+                textDecoration = if (task.completed) TextDecoration.LineThrough else null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+            )
+        }
+
+        task.details?.let { details ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp)
+                    .padding(start = 32.dp)
+            ) {
+                Text(
+                    details,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+//                categoryUi?.icon?.let {
+//                    Icon(
+//                        it,
+//                        null,
+//                        tint = categoryUi.color,
+//                        modifier = Modifier.size(15.dp)
+//                            .padding(end = 4.dp)
+//                    )
+//                }
+//
+//                Text(
+//                    text = category.name,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    style = MaterialTheme.typography.labelMedium,
+//                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TaskItemPrev() {
+    AppTheme {
+        TaskItem(
+            task = Task(
+                title = "Task 1",
+                category = null,
+            ),
+            onTaskClicked = {},
+            onTaskCompleteStatusChanged = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun CompletedTaskItemPrev() {
+    AppTheme {
+        TaskItem(
+            task = Task(
+                title = "Task 1",
+                details = "First task",
+                category = null,
+                completed = true
+            ),
+            onTaskClicked = {},
+            onTaskCompleteStatusChanged = {},
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun Test() {
+    RadioButton(
+        selected = true,
+        onClick = { },
+        modifier = Modifier.size(20.dp)
+    )
+}
+

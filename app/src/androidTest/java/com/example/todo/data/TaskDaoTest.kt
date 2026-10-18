@@ -39,7 +39,8 @@ class TaskDaoTest {
         val task = TaskEntity(
             title = "Test Task",
             category = Category.WORK,
-            completed = false)
+            completed = false
+        )
 
         dao.upsertTask(task)
 
