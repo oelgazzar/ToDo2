@@ -14,7 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.test.arrow_back
 import com.example.test.more_vert
@@ -32,7 +34,8 @@ fun TaskAppBar(
         title = {},
         navigationIcon = {
             IconButton(
-                onClick = navigateBack
+                onClick = navigateBack,
+                modifier = Modifier.testTag("back_button")
             ) {
                 Icon(arrow_back, null)
             }
@@ -43,7 +46,8 @@ fun TaskAppBar(
         actions = {
             Box() {
                 IconButton(
-                    onClick = { expanded = true }
+                    onClick = { expanded = true },
+                    modifier = Modifier.testTag("menu_button")
                 ) {
                     Icon(more_vert, null)
                 }

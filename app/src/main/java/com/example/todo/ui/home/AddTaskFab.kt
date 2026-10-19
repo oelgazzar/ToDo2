@@ -4,6 +4,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.test.add
 import com.example.todo.ui.theme.AppTheme
@@ -14,7 +15,9 @@ fun AddTaskFab(
     modifier: Modifier = Modifier.Companion
 ) {
     FloatingActionButton(
-        onClick = onClick
+        onClick = onClick,
+        modifier = Modifier
+            .testTag("add_task_fab")
     ) {
         Icon(add, null)
     }

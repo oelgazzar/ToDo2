@@ -2,21 +2,23 @@
 
 package com.example.todo.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -27,14 +29,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.test.list_2
+import com.example.test.menu_open
 import com.example.todo.models.Task
 import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.theme.AppTheme
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,20 +55,22 @@ fun TaskFormSheet(
     val titleFieldState = rememberTextFieldState("")
     val detailsFieldState = rememberTextFieldState()
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
     )
     var showDetailsField by remember { mutableStateOf(false) }
 
     val titleFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(sheetState.isVisible, showDetailsField) {
+    LaunchedEffect(sheetState.isAnimationRunning) {
         if (sheetState.isVisible) {
-            titleFieldState.setTextAndPlaceCursorAtEnd(titleFieldState.text.toString())
             titleFocusRequester.requestFocus()
         }
+    }
 
+    LaunchedEffect(showDetailsField) {
         if (showDetailsField) {
+            delay(50.milliseconds)
             detailsFocusRequester.requestFocus()
         }
     }
@@ -73,16 +83,17 @@ fun TaskFormSheet(
                 onDismiss()
             }
         },
-        dragHandle = {},
-        sheetState =  sheetState,
+        dragHandle = null,
+        sheetState = sheetState,
         modifier = modifier
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = modifier
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp)
-                .wrapContentHeight()
+                .padding(16.dp)
+                .navigationBarsPadding()
+                .imePadding()
         ) {
             TransparentTextField(
                 state = titleFieldState,
@@ -100,27 +111,31 @@ fun TaskFormSheet(
             }
 
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 /* Add Details Button */
-                IconButton(
-                    onClick = {
-                        showDetailsField = true
-                    },
-                ) {
-                    Icon(
-                        list_2,
-                        null,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                Icon(
+                    menu_open,
+                    null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable(
+                            onClick = {
+                                showDetailsField = true
+                                detailsFocusRequester.requestFocus()
+                            }
+
+                        )
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 /* Save Button */
                 TextButton(
                     onClick = {
-                        onAddTask(Task(
+                        onAddTask(
+                            Task(
                             title = titleFieldState.text.toString(),
                             details = detailsFieldState.text.toString().takeIf { it.isNotBlank() }
                         ))
@@ -145,5 +160,61 @@ private fun TaskFormSheetPrev() {
             onAddTask = {},
             modifier = Modifier
         )
+    }
+}
+
+@Preview
+@Composable
+private fun ContentPrev() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+//                .wrapContentHeight()
+            .imePadding()
+            .navigationBarsPadding()
+            .padding(16.dp)
+    ) {
+        TransparentTextField(
+            state = rememberTextFieldState(),
+            placeholderText = "New Task",
+        )
+
+        if (false) {
+            TransparentTextField(
+                state = rememberTextFieldState(),
+                placeholderText = "Add details",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            /* Add Details Button */
+            Icon(
+                menu_open,
+                null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        onClick = {}
+
+                    )
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            /* Save Button */
+            TextButton(
+                onClick = {
+                },
+                enabled = false,
+            ) {
+                Text("Save")
+            }
+        }
+
     }
 }

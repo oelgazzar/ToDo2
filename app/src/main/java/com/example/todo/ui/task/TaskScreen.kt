@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -30,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.test.list_2
+import com.example.test.menu_open
 import com.example.todo.models.Task
 import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.shared.TaskActionViewModel
@@ -120,19 +121,21 @@ fun TaskScreenContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = modifier
+            .padding(horizontal = 16.dp)
     ) {
         TransparentTextField(
             state = titleFieldState,
             placeholderText = "Enter title",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.fillMaxWidth()
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                list_2,
+                menu_open,
                 null,
             )
             TransparentTextField(
@@ -140,6 +143,7 @@ fun TaskScreenContent(
                 placeholderText = "Add details",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.alignBy(FirstBaseline)
+                    .fillMaxWidth()
             )
         }
         Spacer(modifier = Modifier.weight(1f))
