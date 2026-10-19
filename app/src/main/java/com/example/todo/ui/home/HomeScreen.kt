@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todo.data.sampleTodos
 import com.example.todo.models.Task
+import com.example.todo.ui.components.FilterType
 import com.example.todo.ui.shared.TaskActionViewModel
 import com.example.todo.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
@@ -35,7 +36,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val taskActionViewModel: TaskActionViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
+    val taskActionViewModel: TaskActionViewModel =
+        hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val taskAction by taskActionViewModel.taskAction.collectAsStateWithLifecycle(null)
 
@@ -58,26 +60,28 @@ fun HomeScreen(
             SnackbarHost(snackBarState)
         }
     ) { innerPadding ->
-        when (uiState) {
-            is HomeUiState.Success -> {
+        println(uiState)
+        when {
+            uiState.isLoading -> {
+                LoadingScreen(modifier)
+            }
+
+            else -> {
                 HomeContent(
-                    tasks = (uiState as HomeUiState.Success).tasks,
+                    tasks = uiState.tasks,
+                    totalTaskCount = uiState.taskCount,
                     onTaskClicked = { navigateToTaskScreen(it.id) },
                     onTaskCompletionToggled = { task -> viewModel.toggleCompleteTask(task.id) },
                     showForm = showForm,
                     onDismissForm = { showForm = false },
                     onAddTask = viewModel::addTask,
+                    selectedFilter = uiState.filter,
+                    onFilterChanged = viewModel::updateFilter,
                     modifier = modifier
                         .padding(innerPadding)
                         .padding(horizontal = 16.dp)
                 )
             }
-
-            is HomeUiState.Loading -> {
-                LoadingScreen(modifier)
-            }
-
-            else -> Unit
         }
     }
 }
@@ -85,17 +89,23 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     tasks: List<Task>,
+    totalTaskCount: Int,
     onTaskClicked: (Task) -> Unit,
     onTaskCompletionToggled: (Task) -> Unit,
     showForm: Boolean,
     onDismissForm: () -> Unit,
     onAddTask: (Task) -> Unit,
+    selectedFilter: FilterType,
+    onFilterChanged: (FilterType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TaskList(
         tasks,
+        totalTaskCount = totalTaskCount,
         onTaskClicked = onTaskClicked,
         onTaskCompletionToggled = onTaskCompletionToggled,
+        selectedFilter = selectedFilter,
+        onFilterChanged = onFilterChanged,
         modifier = modifier
     )
 
@@ -116,11 +126,14 @@ private fun HomeContentPrev() {
     AppTheme {
         HomeContent(
             tasks = sampleTodos,
+            totalTaskCount = sampleTodos.size,
             onTaskClicked = {},
             onTaskCompletionToggled = {},
             showForm = false,
             onDismissForm = {},
             onAddTask = {},
+            selectedFilter = FilterType.ALL,
+            onFilterChanged = {}
         )
     }
 }

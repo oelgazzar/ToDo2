@@ -81,4 +81,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     androidTestImplementation(libs.androidx.navigation.testing)
     implementation(libs.kotlinx.serialization.json)
+
+    // datastore
+    implementation(libs.androidx.datastore.preferences)
+
 }

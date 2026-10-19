@@ -56,7 +56,7 @@ fun TaskItem(
                 text = task.title,
                 textDecoration = if (task.completed) TextDecoration.LineThrough else null,
                 modifier = Modifier
-                    .padding(start = 8.dp)
+                    .padding(start = 16.dp)
             )
         }
 
@@ -64,7 +64,7 @@ fun TaskItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
-                    .padding(start = 32.dp)
+                    .padding(start = 40.dp)
             ) {
                 Text(
                     details,

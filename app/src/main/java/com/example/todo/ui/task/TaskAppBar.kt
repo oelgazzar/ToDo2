@@ -53,7 +53,7 @@ fun TaskAppBar(
                 }
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = true}
+                    onDismissRequest = { expanded = false}
                 ) {
                     DropdownMenuItem(
                         text = {
