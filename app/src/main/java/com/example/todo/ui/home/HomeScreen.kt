@@ -2,33 +2,32 @@
 
 package com.example.todo.ui.home
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todo.data.sampleTodos
 import com.example.todo.models.Task
+import com.example.todo.ui.shared.TaskActionViewModel
 import com.example.todo.ui.theme.AppTheme
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Home(val deletedTask: String? = null)
+object Home
 
 @Composable
 fun HomeScreen(
@@ -36,31 +35,19 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val taskActionViewModel: TaskActionViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val uiEvent by viewModel.uiEvents.collectAsStateWithLifecycle(null)
+    val taskAction by taskActionViewModel.taskAction.collectAsStateWithLifecycle(null)
 
     var showForm by remember { mutableStateOf(false) }
     val snackBarState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(uiEvent) {
-        // Show snackbar on delete + Undo?
-        if (uiEvent != null) {
-            coroutineScope.launch {
-                val result = snackBarState.showSnackbar(
-                    message = uiEvent!!,
-                    actionLabel = "Undo",
-                    withDismissAction = true
-                )
-
-                if (result == SnackbarResult.ActionPerformed) {
-                    viewModel.undoDelete()
-                } else {
-                    viewModel.deletePermanently()
-                }
-            }
-        }
-    }
+    TaskActionEffect(
+        taskAction,
+        snackBarState,
+        onUndoDelete = viewModel::undoDelete,
+        onUndoComplete = viewModel::toggleCompleteTask
+    )
 
     Scaffold(
         topBar = { HomeAppBar() },
@@ -76,7 +63,7 @@ fun HomeScreen(
                 HomeContent(
                     tasks = (uiState as HomeUiState.Success).tasks,
                     onTaskClicked = { navigateToTaskScreen(it.id) },
-                    onTaskCompleteStatusChanged = viewModel::toggleCompleteTask,
+                    onTaskCompletionToggled = { task -> viewModel.toggleCompleteTask(task.id) },
                     showForm = showForm,
                     onDismissForm = { showForm = false },
                     onAddTask = viewModel::addTask,
@@ -90,7 +77,7 @@ fun HomeScreen(
                 LoadingScreen(modifier)
             }
 
-            else -> null
+            else -> Unit
         }
     }
 }
@@ -99,7 +86,7 @@ fun HomeScreen(
 fun HomeContent(
     tasks: List<Task>,
     onTaskClicked: (Task) -> Unit,
-    onTaskCompleteStatusChanged: (Task, Boolean) -> Unit,
+    onTaskCompletionToggled: (Task) -> Unit,
     showForm: Boolean,
     onDismissForm: () -> Unit,
     onAddTask: (Task) -> Unit,
@@ -108,7 +95,7 @@ fun HomeContent(
     TaskList(
         tasks,
         onTaskClicked = onTaskClicked,
-        onTaskCompleteStatusChanged = onTaskCompleteStatusChanged,
+        onTaskCompletionToggled = onTaskCompletionToggled,
         modifier = modifier
     )
 
@@ -130,7 +117,7 @@ private fun HomeContentPrev() {
         HomeContent(
             tasks = sampleTodos,
             onTaskClicked = {},
-            onTaskCompleteStatusChanged = { _, _ -> },
+            onTaskCompletionToggled = {},
             showForm = false,
             onDismissForm = {},
             onAddTask = {},

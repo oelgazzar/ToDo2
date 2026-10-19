@@ -9,4 +9,6 @@ interface TaskRepository {
     suspend fun upsertTask(task: Task)
     suspend fun insertAll(tasks: List<Task>)
     suspend fun deleteTask(taskId: Long)
+    suspend fun updateTaskContent(taskId: Long, title: String, details: String)
+    suspend fun toggleCompleted(taskId: Long)
 }

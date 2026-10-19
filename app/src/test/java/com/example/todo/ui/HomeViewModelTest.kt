@@ -1,43 +1,79 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.example.todo.ui
 
 import com.example.todo.fakes.FakeTaskRepository
+import com.example.todo.models.Task
+import com.example.todo.ui.home.HomeUiState
 import com.example.todo.ui.home.HomeViewModel
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.Dispatchers
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import org.junit.Rule
 import org.junit.Test
 
 class HomeViewModelTest {
-    val repo = FakeTaskRepository()
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun addNewTask_andToggleCompletion() = runTest {
-        Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
-        val viewModel = HomeViewModel(FakeTaskRepository())
+    fun addNewTask_returnSuccessWithOneTask() = runTest {
+        val repo = FakeTaskRepository()
+        val viewModel = HomeViewModel(repo)
 
+        // Add Collector to allow emission
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
 
-        viewModel.addTask("Test Task")
+        val testTask =  Task(
+            title = "Test Task",
+        )
+        viewModel.addTask(testTask)
+
         advanceUntilIdle()
-        val task1 = viewModel.uiState.value.first()
 
-        // Assert against the actual state flow value directly
-        assertEquals("Test Task", task1.title)
-        assertEquals(false, task1.completed)
+        assertTrue(viewModel.uiState.value is HomeUiState.Success)
 
-        viewModel.toggleCompleteTask(task1, true)
-        val task2 = viewModel.uiState.value.first()
-        assertEquals(true, task2.completed)
+        val tasks = (viewModel.uiState.value as HomeUiState.Success).tasks
+        assertEquals(1, tasks.size)
+        assertEquals(testTask, tasks.first())
+    }
 
+    @Test
+    fun toggleCompletion_returnsSuccessWithUpdatedTask() = runTest {
+        val repo = FakeTaskRepository(
+            initialTasks = listOf(
+                Task(
+                    id = 1,
+                    title = "Test Task",
+                    completed = false
+                )
+            )
+        )
+        val viewModel = HomeViewModel(repo)
+
+        // Add Collector to allow emission
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+
+        viewModel.toggleCompleteTask(1)
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value is HomeUiState.Success)
+
+        val tasks = (viewModel.uiState.value as HomeUiState.Success).tasks
+        assertEquals(true, tasks.first().completed)
     }
 }
+

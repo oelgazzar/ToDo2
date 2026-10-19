@@ -5,20 +5,79 @@ import com.example.todo.models.Task
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlin.time.Duration.Companion.milliseconds
 
-class FakeTaskRepository: TaskRepository {
-    val tasks = mutableListOf<Task>()
-    val f = MutableSharedFlow<List<Task>>()
+class FakeTaskRepository(
+    initialTasks: List<Task> = emptyList()
+) : TaskRepository {
 
-    override fun getAllTasks(): Flow<List<Task>> = f
+    private val tasks = MutableStateFlow(initialTasks)
+
+    override fun getAllTasks(): Flow<List<Task>> =
+        tasks.asStateFlow()
+
+    override fun getTask(it: Long): Flow<Task?> =
+        tasks.map { list ->
+            list.find { task -> task.id == it }
+        }
+
     override suspend fun upsertTask(task: Task) {
-        tasks.addFirst(task)
-        f.emit(tasks)
+        tasks.update { list ->
+            val exists = list.any { it.id == task.id }
+
+            if (exists) {
+                list.map { existing ->
+                    if (existing.id == task.id) task else existing
+                }
+            } else {
+                list + task
+            }
+        }
     }
 
     override suspend fun insertAll(tasks: List<Task>) {
-        TODO("Not yet implemented")
+        tasks.forEach { upsertTask(it) }
+    }
+
+    override suspend fun deleteTask(taskId: Long) {
+        tasks.update { list ->
+            list.filterNot { it.id == taskId }
+        }
+    }
+
+    override suspend fun updateTaskContent(
+        taskId: Long,
+        title: String,
+        details: String
+    ) {
+        tasks.update { list ->
+            list.map { task ->
+                if (task.id == taskId) {
+                    task.copy(
+                        title = title,
+                        details = details
+                    )
+                } else {
+                    task
+                }
+            }
+        }
+    }
+
+    override suspend fun toggleCompleted(taskId: Long) {
+        tasks.update { list ->
+            list.map { task ->
+                if (task.id == taskId) {
+                    task.copy(completed = !task.completed)
+                } else {
+                    task
+                }
+            }
+        }
     }
 }

@@ -1,9 +1,6 @@
 package com.example.todo.ui.home
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,14 +18,13 @@ import com.example.todo.ui.theme.AppTheme
 fun TaskList(
     tasks: List<Task>,
     onTaskClicked: (Task) -> Unit,
-    onTaskCompleteStatusChanged: (Task, Boolean) -> Unit,
+    onTaskCompletionToggled: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
     ) {
         LazyColumn(
-//            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier
                 .padding(16.dp),
         ) {
@@ -52,11 +48,10 @@ fun TaskList(
                     TaskItem(
                         task = task,
                         onTaskClicked = { onTaskClicked (task)},
-                        onTaskCompleteStatusChanged = { isCompleted ->
-                            onTaskCompleteStatusChanged(
+                        onToggleCompleted = {
+                            onTaskCompletionToggled(
                                 task,
-                                isCompleted
-                            )
+                                )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -92,7 +87,7 @@ private fun TaskListPrev() {
                 ),
             ),
             onTaskClicked = {},
-            onTaskCompleteStatusChanged = { _, _ -> },
+            onTaskCompletionToggled = {},
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -107,7 +102,7 @@ private fun EmptyTaskListPrev() {
 
             ),
             onTaskClicked = {},
-            onTaskCompleteStatusChanged = { _, _ -> },
+            onTaskCompletionToggled = {},
             modifier = Modifier.padding(16.dp)
         )
     }

@@ -2,44 +2,46 @@ package com.example.todo.ui.task
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class TaskViewModel @Inject constructor(
     private val repository: TaskRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    val taskId = checkNotNull(savedStateHandle.toRoute<TaskDetails>().taskId)
+    val taskId: Long = checkNotNull(savedStateHandle["taskId"])
     val titleFieldState: TextFieldState = TextFieldState()
     val detailsFieldState: TextFieldState = TextFieldState()
 
-//    val taskDraft = combine(
-//        repository.getTask(taskId).filterNotNull(),
-//        snapshotFlow { titleFieldState.text.toString() },
-//        snapshotFlow { detailsFieldState.text.toString() },
-//    ) { task, title, details ->
-//        task.copy(
-//            title = title,
-//            details = details
-//        )
-//    }
-//        .stateIn(
-//        viewModelScope,
-//        SharingStarted.WhileSubscribed(5000),
-//        Task()
-//    )
+    val currentTask = repository.getTask(taskId)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
+    var autoSaveJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -48,25 +50,60 @@ class TaskViewModel @Inject constructor(
                 detailsFieldState.setTextAndPlaceCursorAtEnd(it.details.orEmpty())
             }
         }
+
+        // Autosave
+        autoSaveJob = viewModelScope.launch {
+            combine(
+                snapshotFlow { titleFieldState.text.toString() },
+                snapshotFlow { detailsFieldState.text.toString() },
+            ) { title, details ->
+                title to details
+            }
+                .drop(1)
+                .debounce(500.milliseconds)
+                .collect { (title, details) ->
+                    repository.updateTaskContent(taskId, title, details)
+                    println("Autosave triggered: $title")
+                }
+        }
     }
 
+    // Called on back
     suspend fun saveTask() {
-        repository.upsertTask(Task(
-            id = taskId,
-            title = titleFieldState.text.toString(),
-            details = detailsFieldState.text.toString().takeIf { it.isNotBlank() }
-        ))
+        currentTask.value?.let { task ->
+            repository.upsertTask(
+                task.copy(
+                    title = titleFieldState.text.toString(),
+                    details = detailsFieldState.text.toString().ifBlank { null }
+                ))
+        }
     }
 
-    suspend fun deleteTask(): String {
-        repository.deleteTask(taskId)
-        val serializedTask = Json.encodeToString(
-            Task(
-                id = taskId,
-                title = titleFieldState.text.toString(),
-                details = detailsFieldState.text.toString().takeIf { it.isNotBlank() }
-            )
+    suspend fun deleteTask(): Task? {
+        autoSaveJob?.cancel()
+        val task = currentTask.value?.copy(
+            title = titleFieldState.text.toString(),
+            details = detailsFieldState.text.toString().ifBlank { null }
         )
-        return serializedTask
+        repository.deleteTask(taskId)
+        return task
+    }
+
+
+    // Flush text and toggle complete state
+    suspend fun toggleCompleted(): Boolean {
+        currentTask.value?.let { task ->
+            val isCompleted = task.completed
+            repository.upsertTask(
+                task.copy(
+                    completed = !task.completed,
+                    // Flush text
+                    title = titleFieldState.text.toString(),
+                    details = detailsFieldState.text.toString().ifBlank { null }
+                )
+            )
+            return !isCompleted
+        }
+        return false
     }
 }

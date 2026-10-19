@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.test.check
 import com.example.test.radio_button_unchecked
-import com.example.todo.models.Category
 import com.example.todo.models.Task
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.toUi
@@ -27,7 +26,7 @@ import com.example.todo.ui.utils.toUi
 fun TaskItem(
     task: Task,
     onTaskClicked: () -> Unit,
-    onTaskCompleteStatusChanged: (Boolean) -> Unit,
+    onToggleCompleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val categoryUi = task.category?.toUi()
@@ -47,7 +46,7 @@ fun TaskItem(
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
-                        onClick = { onTaskCompleteStatusChanged(!task.completed) }
+                        onClick = { onToggleCompleted() }
                     )
             )
 
@@ -99,7 +98,7 @@ private fun TaskItemPrev() {
                 category = null,
             ),
             onTaskClicked = {},
-            onTaskCompleteStatusChanged = {},
+            onToggleCompleted = {},
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -117,7 +116,7 @@ private fun CompletedTaskItemPrev() {
                 completed = true
             ),
             onTaskClicked = {},
-            onTaskCompleteStatusChanged = {},
+            onToggleCompleted = {},
             modifier = Modifier.fillMaxWidth()
         )
     }

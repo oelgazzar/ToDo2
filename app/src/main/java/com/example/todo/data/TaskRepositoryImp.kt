@@ -23,4 +23,12 @@ class TaskRepositoryImp @Inject constructor(
     }
 
     override suspend fun deleteTask(taskId: Long) = taskDao.deleteTask(taskId)
+
+    override suspend fun updateTaskContent(
+        taskId: Long,
+        title: String,
+        details: String
+    ) = taskDao.updateTaskContent(taskId, title, details)
+
+    override suspend fun toggleCompleted(taskId: Long) = taskDao.toggleCompleted(taskId)
 }

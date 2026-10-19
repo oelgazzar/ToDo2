@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.todo.ui.home.Home
 import com.example.todo.ui.home.HomeScreen
 import com.example.todo.ui.task.TaskDetails
@@ -19,7 +18,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController,
-        Home()
+        Home
     ) {
         composable<Home> {
             HomeScreen(
@@ -29,8 +28,8 @@ fun AppNavHost(
 
         composable<TaskDetails> {
             TaskScreen(
-                navigateBack = { task ->
-                    navController.navigate(Home(task)) {
+                navigateBack = {
+                    navController.navigate(Home) {
                         popUpTo<Home> {
                             inclusive = true
                         }
