@@ -3,6 +3,7 @@ package com.example.todo.data
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 class TaskRepositoryImp @Inject constructor(
@@ -31,4 +32,8 @@ class TaskRepositoryImp @Inject constructor(
     ) = taskDao.updateTaskContent(taskId, title, details)
 
     override suspend fun toggleCompleted(taskId: Long) = taskDao.toggleCompleted(taskId)
+
+    override suspend fun updateDueDate(taskId: Long, date: LocalDate?) = taskDao.updateDueDate(taskId,
+        date?.toString()
+    )
 }

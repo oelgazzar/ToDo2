@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -105,5 +106,11 @@ class TaskViewModel @Inject constructor(
             return !isCompleted
         }
         return false
+    }
+
+    fun updateDueDate(dueDate: LocalDate?) {
+        viewModelScope.launch {
+            repository.updateDueDate(taskId, dueDate)
+        }
     }
 }

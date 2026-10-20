@@ -13,11 +13,14 @@ import com.example.todo.ui.home.HomeScreen
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltAndroidTest
@@ -65,6 +68,23 @@ class HomeScreenTest {
         composeTestRule.apply {
             onNodeWithTag("task_completed_checkbox").performClick()
             assertEquals(true, repo.getAllTasks().first().first().completed)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun task_showsDueDateProperly() = runTest{
+        repo.upsertTask(Task(
+            title = "Task title",
+            details = "Task details",
+            dueDate = LocalDate.of(2026, 10, 20)
+        ))
+
+        composeTestRule.setContent {
+            HomeScreen({})
+        }
+        composeTestRule.apply {
+            onNodeWithText("Due Today").assertIsDisplayed()
         }
     }
 }

@@ -160,5 +160,4 @@ class TaskViewModelTest {
         assertEquals("Updated title", result?.title)
         assertNull(updated)
     }
-
 }

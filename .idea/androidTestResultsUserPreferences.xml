@@ -95,6 +95,19 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="589770175">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Emulator" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="788035247">
           <value>
             <AndroidTestResultsTableState>
@@ -121,6 +134,19 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="948653557">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Emulator" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="1125351475">
           <value>
             <AndroidTestResultsTableState>
@@ -129,6 +155,19 @@
                   <entry key="Duration" value="90" />
                   <entry key="Emulator" value="120" />
                   <entry key="Medium_Phone_API_35" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1202766216">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Emulator" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>

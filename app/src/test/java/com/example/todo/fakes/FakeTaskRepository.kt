@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
 
 class FakeTaskRepository(
@@ -74,6 +75,18 @@ class FakeTaskRepository(
             list.map { task ->
                 if (task.id == taskId) {
                     task.copy(completed = !task.completed)
+                } else {
+                    task
+                }
+            }
+        }
+    }
+
+    override suspend fun updateDueDate(taskId: Long, date: LocalDate?) {
+        tasks.update { list ->
+            list.map { task ->
+                if (task.id == taskId) {
+                    task.copy(dueDate = date)
                 } else {
                     task
                 }

@@ -32,4 +32,7 @@ interface TaskDao {
 
     @Query("UPDATE task SET completed = NOT completed WHERE id = :taskId")
     suspend fun toggleCompleted(taskId: Long)
+
+    @Query("UPDATE task SET dueDate = :date WHERE id = :taskId")
+    suspend fun updateDueDate(taskId: Long, date: String?)
 }

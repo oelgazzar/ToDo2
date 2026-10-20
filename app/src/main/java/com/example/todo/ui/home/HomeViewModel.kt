@@ -3,6 +3,7 @@ package com.example.todo.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.PreferenceRepository
+import com.example.todo.data.PreferenceRepositoryImpl
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.Task
 import com.example.todo.ui.components.FilterType
@@ -11,11 +12,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch

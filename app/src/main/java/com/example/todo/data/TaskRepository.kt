@@ -2,6 +2,7 @@ package com.example.todo.data
 
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 interface TaskRepository {
     fun getAllTasks(): Flow<List<Task>>
@@ -11,4 +12,5 @@ interface TaskRepository {
     suspend fun deleteTask(taskId: Long)
     suspend fun updateTaskContent(taskId: Long, title: String, details: String)
     suspend fun toggleCompleted(taskId: Long)
+    suspend fun updateDueDate(taskId: Long, date: LocalDate?)
 }

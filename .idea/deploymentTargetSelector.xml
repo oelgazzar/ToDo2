@@ -4,54 +4,43 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
+        <DropdownSelection timestamp="2026-10-20T14:38:20.656853300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCW31A762E" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="undoTask_readdTask()">
+      <SelectionState runConfigName="task_showsDueDateProperly()">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
+        <DropdownSelection timestamp="2026-10-20T14:38:20.656853300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCW31A762E" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="toggleCompleteTask_showsProperMessageWithUndoAction()">
+      <SelectionState runConfigName="addDeadline_showsInHomeScreen()">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
+        <DropdownSelection timestamp="2026-10-20T14:38:20.656853300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCW31A762E" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="undoCompleteTask_resetsTask()">
+      <SelectionState runConfigName="Tests in 'com.example.todo.ui'">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
+        <DropdownSelection timestamp="2026-10-20T14:38:20.656853300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="EditScreenTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-18T15:59:00.942570600Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="Wireless" identifier="serviceName=adb-RZCW31A762E-K9ekol" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCW31A762E" />
             </handle>
           </Target>
         </DropdownSelection>

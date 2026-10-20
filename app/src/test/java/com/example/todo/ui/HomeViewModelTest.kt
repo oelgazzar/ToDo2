@@ -2,14 +2,17 @@
 
 package com.example.todo.ui
 
+import com.example.todo.data.PreferenceRepository
 import com.example.todo.fakes.FakeTaskRepository
 import com.example.todo.models.Task
+import com.example.todo.ui.components.FilterType
 import com.example.todo.ui.home.HomeUiState
 import com.example.todo.ui.home.HomeViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -22,12 +25,17 @@ class HomeViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    val prefRepo = object : PreferenceRepository {
+        override fun getFilterType() = flowOf(FilterType.ALL)
+        override suspend fun saveFilterType(filterType: FilterType) {}
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun addNewTask_returnSuccessWithOneTask() = runTest {
         val repo = FakeTaskRepository()
-        val viewModel = HomeViewModel(repo)
+        val viewModel = HomeViewModel(repo, prefRepo)
 
         // Add Collector to allow emission
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -41,9 +49,7 @@ class HomeViewModelTest {
 
         advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value is HomeUiState.Success)
-
-        val tasks = (viewModel.uiState.value as HomeUiState.Success).tasks
+        val tasks = viewModel.uiState.value.tasks
         assertEquals(1, tasks.size)
         assertEquals(testTask, tasks.first())
     }
@@ -59,7 +65,7 @@ class HomeViewModelTest {
                 )
             )
         )
-        val viewModel = HomeViewModel(repo)
+        val viewModel = HomeViewModel(repo, prefRepo)
 
         // Add Collector to allow emission
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -70,9 +76,7 @@ class HomeViewModelTest {
 
         advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value is HomeUiState.Success)
-
-        val tasks = (viewModel.uiState.value as HomeUiState.Success).tasks
+        val tasks = viewModel.uiState.value.tasks
         assertEquals(true, tasks.first().completed)
     }
 }

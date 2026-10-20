@@ -19,9 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.test.check
 import com.example.test.radio_button_unchecked
+import com.example.test.star
+import com.example.test.target_check
 import com.example.todo.models.Task
 import com.example.todo.ui.theme.AppTheme
+import com.example.todo.ui.utils.toDisplayText
 import com.example.todo.ui.utils.toUi
+import java.time.LocalDate
 
 @Composable
 fun TaskItem(
@@ -60,7 +64,7 @@ fun TaskItem(
             )
         }
 
-        task.details?.let { details ->
+        task.details?.ifBlank { null }?.let { details ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
@@ -87,6 +91,26 @@ fun TaskItem(
 //                )
             }
         }
+
+        task.dueDate?.let { dueDate ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp)
+                    .padding(start = 40.dp)
+            ) {
+                Icon(
+                    target_check,
+                    null,
+                    modifier = Modifier
+                        .size(18.dp)
+                )
+                Text(
+                    text = "Due ${dueDate.toDisplayText()}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
     }
 }
 
@@ -98,6 +122,7 @@ private fun TaskItemPrev() {
             task = Task(
                 title = "Task 1",
                 category = null,
+                dueDate = LocalDate.now()
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
