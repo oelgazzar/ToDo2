@@ -126,8 +126,8 @@ fun ReminderDialog(
 
     if (showTimePicker) {
         TimePickerDialog(
-            initialTime = LocalTime.of(initialReminder?.time?.hour?:0,
-                initialReminder?.time?.minute?:0),
+            initialTime = LocalTime.of(initialReminder?.time?.hour?: LocalTime.now().hour,
+                initialReminder?.time?.minute?: LocalTime.now().minute),
             onConfirm = {
                 timeReminder = LocalTime.of(it.hour, it.minute)
                 showTimePicker = false

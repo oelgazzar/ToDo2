@@ -65,7 +65,6 @@ class TaskViewModel @Inject constructor(
                 .debounce(500.milliseconds)
                 .collect { (title, details) ->
                     repository.updateTaskContent(taskId, title, details)
-                    println("Autosave triggered: $title")
                 }
         }
     }

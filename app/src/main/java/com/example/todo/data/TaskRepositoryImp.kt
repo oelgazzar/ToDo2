@@ -5,6 +5,7 @@ import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
 import com.example.todo.models.Schedule
 import com.example.todo.models.Task
+import com.example.todo.schedular.ReminderSchedular
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 class TaskRepositoryImp @Inject constructor(
     private val taskDao: TaskDao,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val schedular: ReminderSchedular
 ): TaskRepository {
     override fun getAllTasks(): Flow<List<Task>> {
         return taskDao.getAllTasks().map { it.toDomain() }
@@ -60,6 +62,7 @@ class TaskRepositoryImp @Inject constructor(
                     val schedule = it.schedule.copy(reminder = reminder,
                         repeat = if (reminder != null) it.schedule.repeat else null)
                     taskDao.upsertTask(it.copy(schedule = schedule))
+                    schedular.schedule(taskId)
                 }
         }
     }

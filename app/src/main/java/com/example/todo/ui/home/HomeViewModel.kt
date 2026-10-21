@@ -65,9 +65,9 @@ class HomeViewModel @Inject constructor(
             preferenceRepository.getFilterType().take(1).collect {
                 _filter.value = it
             }
-            println("HomeViewModel: retrieved filter value and closing.. ${_filter.value}")
         }
     }
+
 
     fun addTask(task: Task) {
         viewModelScope.launch {

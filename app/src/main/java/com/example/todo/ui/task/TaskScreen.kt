@@ -244,12 +244,14 @@ fun TaskScreenContent(
                     onClick = { showReminderDialog = true },
                     label = { Text(currentTask.schedule.reminder.toFormattedString()) },
                     trailingIcon = {
-                        Icon(
-                            close, null,
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clickable { onReminderChanged(null) }
-                        )
+                        if (currentTask.schedule.repeat == null) {
+                            Icon(
+                                close, null,
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .clickable { onReminderChanged(null) }
+                            )
+                        }
                     }
                 )
             } else {

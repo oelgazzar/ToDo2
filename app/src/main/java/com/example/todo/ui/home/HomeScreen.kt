@@ -61,7 +61,6 @@ fun HomeScreen(
             SnackbarHost(snackBarState)
         }
     ) { innerPadding ->
-        println(uiState)
         when {
             uiState.isLoading -> {
                 LoadingScreen(modifier)
