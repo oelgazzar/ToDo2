@@ -13,7 +13,7 @@ fun Context.sendNotification(title: String, content: String) {
     val notification = NotificationCompat.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
         .setContentTitle(title)
         .setContentText(content)
-        .setSmallIcon(R.drawable.all_completed)
+        .setSmallIcon(R.mipmap.ic_launcher)
         .build()
 
     with(NotificationManagerCompat.from(this)) {
