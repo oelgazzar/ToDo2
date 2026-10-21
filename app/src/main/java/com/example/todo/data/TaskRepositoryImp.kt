@@ -57,7 +57,8 @@ class TaskRepositoryImp @Inject constructor(
                 .getTask(taskId)
                 .first()
                 ?.let {
-                    val schedule = Schedule(reminder = reminder)
+                    val schedule = it.schedule.copy(reminder = reminder,
+                        repeat = if (reminder != null) it.schedule.repeat else null)
                     taskDao.upsertTask(it.copy(schedule = schedule))
                 }
         }

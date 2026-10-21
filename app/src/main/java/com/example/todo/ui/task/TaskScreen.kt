@@ -2,6 +2,7 @@ package com.example.todo.ui.task
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -184,7 +185,7 @@ fun TaskScreenContent(
 
         // ------------------- Deadline ------------------------ //
 
-        if (currentTask?.isRepeatable == false) {
+        AnimatedVisibility(currentTask?.isRepeatable == false) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -200,7 +201,7 @@ fun TaskScreenContent(
                     null,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
-                if (currentTask.schedule.dueDate != null) {
+                if (currentTask?.schedule?.dueDate != null) {
                     InputChip(
                         false,
                         onClick = { showDatePicker = true },
@@ -276,11 +277,13 @@ fun TaskScreenContent(
                 InputChip(
                     false,
                     onClick = { showReminderDialog = true },
-                    label = { Text(
-                        currentTask.schedule.repeat.toDisplayText(),
-                        maxLines = 1,
-                        modifier = Modifier.horizontalScroll(rememberScrollState())
-                    ) },
+                    label = {
+                        Text(
+                            currentTask.schedule.repeat.toDisplayText(),
+                            maxLines = 1,
+                            modifier = Modifier.horizontalScroll(rememberScrollState())
+                        )
+                    },
                     trailingIcon = {
                         Icon(
                             close, null,
