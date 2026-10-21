@@ -5,6 +5,7 @@ import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import com.example.todo.models.Category
 import com.example.todo.models.Repeat
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import java.time.Instant
 import java.time.LocalDate
@@ -19,8 +20,8 @@ data class TaskEntity(
     val completed: Boolean = false,
     val dueDate: String? = null,
     val createdAt: String = LocalDate.now().toString(),
-    @Embedded(prefix = "repeat_")
-    val repeat: Repeat? = null
+    @Embedded(prefix = "schedule_")
+    val schedule: Schedule = Schedule()
 )
 
 fun TaskEntity.toDomain(): Task {
@@ -30,9 +31,8 @@ fun TaskEntity.toDomain(): Task {
         details = details,
         category = category,
         completed = completed,
-        dueDate = dueDate?.let { LocalDate.parse(it) },
         createdAt = LocalDate.parse(createdAt),
-        repeat = repeat
+        schedule = schedule
     )
 }
 
@@ -45,9 +45,8 @@ fun Task.toEntity(): TaskEntity {
         details = details,
         category = category,
         completed = completed,
-        dueDate = dueDate?.toString(),
         createdAt = createdAt.toString(),
-        repeat = repeat
+        schedule = schedule
     )
 }
 

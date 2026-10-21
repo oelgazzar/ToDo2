@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.example.todo.TestActivity
 import com.example.todo.data.TaskRepository
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import com.example.todo.ui.home.HomeScreen
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -77,7 +78,7 @@ class HomeScreenTest {
         repo.upsertTask(Task(
             title = "Task title",
             details = "Task details",
-            dueDate = LocalDate.of(2026, 10, 20)
+            schedule = Schedule(dueDate = LocalDate.of(2026, 10, 20))
         ))
 
         composeTestRule.setContent {

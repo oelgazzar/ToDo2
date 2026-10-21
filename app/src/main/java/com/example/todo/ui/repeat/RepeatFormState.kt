@@ -4,13 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
+import com.example.todo.models.toLocalDateTime
 import com.example.todo.ui.components.DayOfWeekPickerState
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
-class RepeatFormState {
+class RepeatFormState(
+    reminder: Reminder? = null
+) {
     var interval by mutableStateOf("1")
         private set
 
@@ -31,10 +35,10 @@ class RepeatFormState {
     var dayOfWeekInMonth by mutableStateOf(DayOfWeek.SATURDAY)
         private set
 
-    var time by mutableStateOf<LocalTime?>(null)
+    var time by mutableStateOf<LocalTime?>(reminder?.time)
         private set
 
-    var startDate by mutableStateOf<LocalDate?>(LocalDate.now())
+    var startDate by mutableStateOf<LocalDate?>(reminder?.date?: LocalDate.now())
         private set
 
     var endDate by mutableStateOf<LocalDate?>(LocalDate.now().plusDays(1))
@@ -112,6 +116,7 @@ fun Repeat.toRepeatFormState(): RepeatFormState {
     return RepeatFormState().apply {
         updateInterval(this@toRepeatFormState.interval.toString())
         updateRepeatType(this@toRepeatFormState.repeatType)
+        dayOfWeekPickerState.selectedDays.addAll(daysOfWeek?:setOf())
         updateMonthDayMode(this@toRepeatFormState.monthDayMode ?: MonthDayMode.Day)
         updateDayOfMonth(this@toRepeatFormState.dayOfMonth ?: 1)
         updateNthDayOfWeekInMonth(this@toRepeatFormState.nthDayOfWeekInMonth ?: 1)

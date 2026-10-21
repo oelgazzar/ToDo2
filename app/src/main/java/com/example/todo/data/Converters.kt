@@ -4,6 +4,7 @@ import androidx.room3.ColumnTypeConverter
 import com.example.todo.ui.repeat.RepeatType
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class Converters {
@@ -29,6 +30,14 @@ class Converters {
     @ColumnTypeConverter
     fun toLocalTime(value: String?): LocalTime? =
         value?.let(LocalTime::parse)
+
+    @ColumnTypeConverter
+    fun fromLocalDateTime(value: LocalDateTime?): String? =
+        value?.toString()
+
+    @ColumnTypeConverter
+    fun toLocalDateTime(value: String?): LocalDateTime? =
+        value?.let(LocalDateTime::parse)
 
     @ColumnTypeConverter
     fun fromDayOfWeek(value: DayOfWeek?): String? =

@@ -10,8 +10,7 @@ data class Task(
     val category: Category? = null,
     val completed: Boolean = false,
     val createdAt: LocalDate = LocalDate.now(),
-    val dueDate: LocalDate? = null,
-    val repeat: Repeat? = null
+    val schedule: Schedule = Schedule()
 )
 
 enum class Category {

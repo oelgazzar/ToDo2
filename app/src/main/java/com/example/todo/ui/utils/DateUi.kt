@@ -1,10 +1,14 @@
 package com.example.todo.ui.utils
 
+import com.example.todo.models.Reminder
+import com.example.todo.models.toLocalDateTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
+private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
+private val fullFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, h a")
 
 fun LocalDate.toDisplayText(today: LocalDate = LocalDate.now()): String {
     val daysInterval = ChronoUnit.DAYS.between(this, today).toInt()
@@ -22,5 +26,17 @@ fun LocalDate.toDisplayText(today: LocalDate = LocalDate.now()): String {
 }
 
 fun LocalDate.toFormattedString(): String {
-    return this.format(formatter)
+    return this.format(dateFormatter)
+}
+
+fun LocalDateTime.toFormattedString(): String {
+    return this.format(fullFormatter)
+}
+
+fun Reminder.toFormattedString(): String {
+    return if (time != null) {
+        this.toLocalDateTime().toFormattedString()
+    } else {
+        this.date.toFormattedString()
+    }
 }

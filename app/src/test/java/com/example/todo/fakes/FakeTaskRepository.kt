@@ -1,6 +1,7 @@
 package com.example.todo.fakes
 
 import com.example.todo.data.TaskRepository
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -86,7 +87,8 @@ class FakeTaskRepository(
         tasks.update { list ->
             list.map { task ->
                 if (task.id == taskId) {
-                    task.copy(dueDate = date)
+                    val schedule = Schedule(dueDate = date)
+                    task.copy(schedule = schedule)
                 } else {
                     task
                 }

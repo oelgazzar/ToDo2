@@ -36,9 +36,14 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.test.close
 import com.example.test.menu_open
+import com.example.test.schedule
 import com.example.test.target_check
+import com.example.todo.models.Reminder
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
+import com.example.todo.ui.components.ConfirmDeleteDialog
 import com.example.todo.ui.components.DatePickerDialog
+import com.example.todo.ui.components.ReminderDialog
 import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.shared.TaskActionViewModel
 import com.example.todo.ui.theme.AppTheme
@@ -46,6 +51,7 @@ import com.example.todo.ui.utils.toFormattedString
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Serializable
 data class TaskDetails(val taskId: Long)
@@ -54,6 +60,7 @@ data class TaskDetails(val taskId: Long)
 @Composable
 fun TaskScreen(
     navigateBack: () -> Unit,
+    navigateToRepeatForm: (Reminder?) -> Unit,
     viewModel: TaskViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -98,6 +105,8 @@ fun TaskScreen(
                 }
             },
             onDueDateChanged = viewModel::updateDueDate,
+            onReminderChanged = viewModel::updateReminder,
+            navigateToRepeatForm = navigateToRepeatForm,
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
@@ -130,9 +139,12 @@ fun TaskScreenContent(
     currentTask: Task?,
     toggleCompleted: () -> Unit,
     onDueDateChanged: (LocalDate?) -> Unit,
+    onReminderChanged: (Reminder?) -> Unit,
+    navigateToRepeatForm: (Reminder?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
+    var showReminderDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.padding(vertical = 16.dp)
@@ -165,6 +177,8 @@ fun TaskScreenContent(
             )
         }
 
+        // ------------------- Deadline ------------------------ //
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -180,11 +194,11 @@ fun TaskScreenContent(
                 null,
                 modifier = Modifier.padding(vertical = 12.dp)
             )
-            if (currentTask?.dueDate != null) {
+            if (currentTask?.schedule?.dueDate != null) {
                 InputChip(
                     false,
                     onClick = { showDatePicker = true },
-                    label = { Text(currentTask.dueDate.toFormattedString()) },
+                    label = { Text(currentTask.schedule.dueDate.toFormattedString()) },
                     trailingIcon = {
                         Icon(
                             close, null,
@@ -198,6 +212,42 @@ fun TaskScreenContent(
                 Text("Add deadline")
             }
         }
+
+        // ---------------- Reminder ----------------------- //
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .clickable(
+                    onClick = {  showReminderDialog = true }
+                )
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+            Icon(
+                schedule,
+                null,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
+            if (currentTask?.schedule?.reminder != null) {
+                InputChip(
+                    false,
+                    onClick = { showReminderDialog = true },
+                    label = { Text(currentTask.schedule.reminder.toFormattedString()) },
+                    trailingIcon = {
+                        Icon(
+                            close, null,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clickable { onReminderChanged(null) }
+                        )
+                    }
+                )
+            } else {
+                Text("Add Reminder")
+            }
+        }
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = toggleCompleted,
@@ -209,9 +259,24 @@ fun TaskScreenContent(
 
     if (showDatePicker) {
         DatePickerDialog(
-            initialDate = currentTask?.dueDate,
+            initialDate = currentTask?.schedule?.dueDate,
             onConfirm = onDueDateChanged,
             onDismiss = { showDatePicker = false },
+        )
+    }
+
+    if (showReminderDialog) {
+        ReminderDialog(
+            initialReminder = currentTask?.schedule?.reminder,
+            onConfirm = {
+                onReminderChanged(it)
+                showReminderDialog = false
+            },
+            onDismiss = { showReminderDialog = false },
+            showRepeatForm = {
+                showReminderDialog = false
+                navigateToRepeatForm(it)
+            }
         )
     }
 
@@ -228,10 +293,12 @@ private fun TaskScreenContentPrev() {
                 id = 0,
                 title = "Task 1",
                 category = null,
-                dueDate = LocalDate.now()
+                schedule = Schedule(dueDate = LocalDate.now()),
             ),
             toggleCompleted = {},
             onDueDateChanged = {},
+            onReminderChanged = {},
+            navigateToRepeatForm = {},
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)

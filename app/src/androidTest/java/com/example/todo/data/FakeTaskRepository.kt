@@ -1,5 +1,8 @@
 package com.example.todo.data
 
+import com.example.todo.models.Reminder
+import com.example.todo.models.Repeat
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,7 +84,34 @@ class FakeTaskRepository @Inject constructor(
         tasks.update { list ->
             list.map { task ->
                 if (task.id == taskId) {
-                    task.copy(dueDate = date)
+                    val schedule = Schedule(dueDate = date)
+                    task.copy(schedule = schedule)
+                } else {
+                    task
+                }
+            }
+        }
+    }
+
+    override suspend fun updateRepeat(taskId: Long, repeat: Repeat) {
+        tasks.update { list ->
+            list.map { task ->
+                if (task.id == taskId) {
+                    val schedule = Schedule(repeat = repeat, reminder = Reminder(repeat.startDate?: LocalDate.now(), repeat.time))
+                    task.copy(schedule = schedule)
+                } else {
+                    task
+                }
+            }
+        }
+    }
+
+    override suspend fun updateReminder(taskId: Long, reminder: Reminder?) {
+        tasks.update { list ->
+            list.map { task ->
+                if (task.id == taskId) {
+                    val schedule = Schedule(reminder = reminder)
+                    task.copy(schedule = schedule)
                 } else {
                     task
                 }

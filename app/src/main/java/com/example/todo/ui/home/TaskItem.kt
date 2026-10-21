@@ -21,6 +21,7 @@ import com.example.test.check
 import com.example.test.radio_button_unchecked
 import com.example.test.star
 import com.example.test.target_check
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.toDisplayText
@@ -92,7 +93,7 @@ fun TaskItem(
             }
         }
 
-        task.dueDate?.let { dueDate ->
+        task.schedule.dueDate?.let { dueDate ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
@@ -122,7 +123,7 @@ private fun TaskItemPrev() {
             task = Task(
                 title = "Task 1",
                 category = null,
-                dueDate = LocalDate.now()
+                schedule = Schedule(dueDate = LocalDate.now()),
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
@@ -140,7 +141,10 @@ private fun CompletedTaskItemPrev() {
                 title = "Task 1",
                 details = "First task",
                 category = null,
-                completed = true
+                completed = true,
+                schedule = Schedule(
+                    dueDate = LocalDate.now()
+                )
             ),
             onTaskClicked = {},
             onToggleCompleted = {},

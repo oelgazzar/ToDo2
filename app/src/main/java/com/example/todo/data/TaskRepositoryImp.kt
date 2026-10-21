@@ -1,7 +1,9 @@
 package com.example.todo.data
 
 import androidx.room3.withWriteTransaction
+import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
+import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -37,9 +39,29 @@ class TaskRepositoryImp @Inject constructor(
 
     override suspend fun toggleCompleted(taskId: Long) = taskDao.toggleCompleted(taskId)
 
-    override suspend fun updateDueDate(taskId: Long, date: LocalDate?) = taskDao.updateDueDate(taskId,
-        date?.toString()
-    )
+    override suspend fun updateDueDate(taskId: Long, date: LocalDate?) {
+        db.withWriteTransaction {
+            taskDao
+                .getTask(taskId)
+                .first()
+                ?.let {
+                    val schedule = Schedule(dueDate = date)
+                    taskDao.upsertTask(it.copy(schedule = schedule))
+                }
+        }
+    }
+
+    override suspend fun updateReminder(taskId: Long, reminder: Reminder?) {
+        db.withWriteTransaction {
+            taskDao
+                .getTask(taskId)
+                .first()
+                ?.let {
+                    val schedule = Schedule(reminder = reminder)
+                    taskDao.upsertTask(it.copy(schedule = schedule))
+                }
+        }
+    }
 
     override suspend fun updateRepeat(taskId: Long, repeat: Repeat) {
         db.withWriteTransaction {
@@ -47,7 +69,12 @@ class TaskRepositoryImp @Inject constructor(
                 .getTask(taskId)
                 .first()
                 ?.let {
-                    taskDao.upsertTask(it.copy(repeat = repeat))
+                    val reminder = Reminder(
+                        date = repeat.startDate?: LocalDate.now(),
+                        time = repeat.time
+                    )
+                    val schedule = Schedule(reminder = reminder, repeat = repeat)
+                    taskDao.upsertTask(it.copy(schedule = schedule))
                 }
         }
     }

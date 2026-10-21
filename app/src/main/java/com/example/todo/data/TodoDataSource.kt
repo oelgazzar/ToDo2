@@ -13,7 +13,6 @@ val sampleTodos = listOf(
         title = "Submit report",
         category = Category.WORK,
         completed = false,
-        dueDate = today.minusDays(2),
         createdAt = LocalDate.now()
     ),
     Task(
@@ -21,7 +20,6 @@ val sampleTodos = listOf(
         title = "Call Ahmed",
         category = Category.PERSONAL,
         completed = false,
-        dueDate = today.minusDays(1),
         createdAt = LocalDate.now()
     ),
     Task(
@@ -29,7 +27,6 @@ val sampleTodos = listOf(
         title = "Study Kotlin",
         category = Category.STUDY,
         completed = false,
-        dueDate = today,
         createdAt = LocalDate.now()
     ),
     Task(
@@ -37,7 +34,6 @@ val sampleTodos = listOf(
         title = "Go to gym",
         category = Category.PERSONAL,
         completed = true,
-        dueDate = today,
         createdAt = LocalDate.now()
     ),
     Task(
@@ -45,7 +41,6 @@ val sampleTodos = listOf(
         title = "Finish thesis",
         category = Category.STUDY,
         completed = false,
-        dueDate = today.plusDays(1),
         createdAt = LocalDate.now()
     ),
     Task(
@@ -53,7 +48,6 @@ val sampleTodos = listOf(
         title = "Buy groceries",
         category = Category.PERSONAL,
         completed = false,
-        dueDate = today.plusDays(5),
         createdAt = LocalDate.now()
     ),
     Task(
@@ -61,7 +55,6 @@ val sampleTodos = listOf(
         title = "Read article",
         category = null,
         completed = false,
-        dueDate = null,
         createdAt = LocalDate.now()
     )
 )

@@ -8,6 +8,8 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.todo.ui.theme.AppTheme
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,8 +21,8 @@ fun TimePickerDialog(
     modifier: Modifier = Modifier
 ) {
     val timePickerState = rememberTimePickerState(
-        initialHour = initialTime?.hour?:0,
-        initialMinute = initialTime?.minute?:0,
+        initialHour = initialTime?.hour ?: 0,
+        initialMinute = initialTime?.minute ?: 0,
     )
     AlertDialog(
         title = {
@@ -53,4 +55,16 @@ fun TimePickerDialog(
         modifier = modifier
     )
 
+}
+
+@Preview
+@Composable
+private fun TimePickerDialogPrev() {
+    AppTheme {
+        TimePickerDialog(
+            initialTime = LocalTime.now(),
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
 }

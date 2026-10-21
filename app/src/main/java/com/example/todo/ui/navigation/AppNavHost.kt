@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.todo.ui.home.Home
 import com.example.todo.ui.home.HomeScreen
 import com.example.todo.ui.repeat.RepeatForm
@@ -24,11 +25,11 @@ fun AppNavHost(
     ) {
         composable<Home> {
             HomeScreen(
-                navigateToTaskScreen = { navController.navigate(RepeatForm(it)) }
+                navigateToTaskScreen = { navController.navigate(TaskDetails(it)) }
             )
         }
 
-        composable<TaskDetails> {
+        composable<TaskDetails> { backStackEntry ->
             TaskScreen(
                 navigateBack = {
                     navController.navigate(Home) {
@@ -37,19 +38,15 @@ fun AppNavHost(
                         }
                         launchSingleTop = true
                     }
-                }
+                },
+                navigateToRepeatForm = { navController.navigate(RepeatForm(backStackEntry.toRoute<TaskDetails>().taskId, it?.toString())) }
             )
         }
 
         composable<RepeatForm> {
             RepeatScreen(
                 navigateBack = {
-                    navController.navigate(Home) {
-                        popUpTo<Home> {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
+                    navController.popBackStack()
                 }
             )
         }
