@@ -12,7 +12,7 @@ import com.example.todo.ui.theme.AppTheme
 @Composable
 fun AddTaskFab(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.Companion
+    modifier: Modifier = Modifier
 ) {
     FloatingActionButton(
         onClick = onClick,

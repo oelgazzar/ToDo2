@@ -15,6 +15,9 @@ interface TaskDao {
     @Query("SELECT * FROM task WHERE id = :id")
     fun getTask(id: Long): Flow<TaskEntity?>
 
+    @Query("SELECT * FROM task WHERE id = :id")
+    suspend fun getTaskOnce(id: Long): TaskEntity?
+
     @Upsert
     suspend fun upsertTask(task: TaskEntity)
 

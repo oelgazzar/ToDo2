@@ -1,13 +1,17 @@
 package com.example.todo.data
 
+import androidx.room3.withWriteTransaction
+import com.example.todo.models.Repeat
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import javax.inject.Inject
 
 class TaskRepositoryImp @Inject constructor(
-    private val taskDao: TaskDao
+    private val taskDao: TaskDao,
+    private val db: AppDatabase
 ): TaskRepository {
     override fun getAllTasks(): Flow<List<Task>> {
         return taskDao.getAllTasks().map { it.toDomain() }
@@ -36,4 +40,15 @@ class TaskRepositoryImp @Inject constructor(
     override suspend fun updateDueDate(taskId: Long, date: LocalDate?) = taskDao.updateDueDate(taskId,
         date?.toString()
     )
+
+    override suspend fun updateRepeat(taskId: Long, repeat: Repeat) {
+        db.withWriteTransaction {
+            taskDao
+                .getTask(taskId)
+                .first()
+                ?.let {
+                    taskDao.upsertTask(it.copy(repeat = repeat))
+                }
+        }
+    }
 }

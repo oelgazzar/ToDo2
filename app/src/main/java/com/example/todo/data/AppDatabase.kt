@@ -1,9 +1,11 @@
 package com.example.todo.data
 
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 
-@Database(entities = [TaskEntity::class], version = 3)
+@Database(entities = [TaskEntity::class], version = 4)
+@ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 

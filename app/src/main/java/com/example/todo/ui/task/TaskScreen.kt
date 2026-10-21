@@ -38,6 +38,7 @@ import com.example.test.close
 import com.example.test.menu_open
 import com.example.test.target_check
 import com.example.todo.models.Task
+import com.example.todo.ui.components.DatePickerDialog
 import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.shared.TaskActionViewModel
 import com.example.todo.ui.theme.AppTheme
@@ -207,10 +208,10 @@ fun TaskScreenContent(
     }
 
     if (showDatePicker) {
-        DueDatePicker(
-            initialSelectedDate = currentTask?.dueDate,
+        DatePickerDialog(
+            initialDate = currentTask?.dueDate,
+            onConfirm = onDueDateChanged,
             onDismiss = { showDatePicker = false },
-            onDueDateChanged = onDueDateChanged,
         )
     }
 
