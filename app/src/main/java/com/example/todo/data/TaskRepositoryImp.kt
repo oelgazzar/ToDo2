@@ -45,7 +45,7 @@ class TaskRepositoryImp @Inject constructor(
                 .getTask(taskId)
                 .first()
                 ?.let {
-                    val schedule = Schedule(dueDate = date)
+                    val schedule = it.schedule.copy(dueDate = date)
                     taskDao.upsertTask(it.copy(schedule = schedule))
                 }
         }
@@ -58,6 +58,18 @@ class TaskRepositoryImp @Inject constructor(
                 .first()
                 ?.let {
                     val schedule = Schedule(reminder = reminder)
+                    taskDao.upsertTask(it.copy(schedule = schedule))
+                }
+        }
+    }
+
+    override suspend fun removeRepeat(taskId: Long) {
+        db.withWriteTransaction {
+            taskDao
+                .getTask(taskId)
+                .first()
+                ?.let {
+                    val schedule = it.schedule.copy(repeat = null)
                     taskDao.upsertTask(it.copy(schedule = schedule))
                 }
         }

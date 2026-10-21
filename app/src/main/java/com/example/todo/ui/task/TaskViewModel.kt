@@ -120,4 +120,10 @@ class TaskViewModel @Inject constructor(
             repository.updateReminder(taskId, reminder)
         }
     }
+
+    fun removeRepeat() {
+        viewModelScope.launch {
+            repository.removeRepeat(taskId)
+        }
+    }
 }

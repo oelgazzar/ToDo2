@@ -19,4 +19,5 @@ interface TaskRepository {
     suspend fun updateDueDate(taskId: Long, date: LocalDate?)
     suspend fun updateRepeat(taskId: Long, repeat: Repeat)
     suspend fun updateReminder(taskId: Long, reminder: Reminder?)
+    suspend fun removeRepeat(taskId: Long)
 }

@@ -11,7 +11,10 @@ data class Task(
     val completed: Boolean = false,
     val createdAt: LocalDate = LocalDate.now(),
     val schedule: Schedule = Schedule()
-)
+) {
+    val isRepeatable: Boolean
+        get() = schedule.repeat != null
+}
 
 enum class Category {
     WORK,
