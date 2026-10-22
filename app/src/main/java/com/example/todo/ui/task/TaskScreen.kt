@@ -47,6 +47,7 @@ import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 import com.example.todo.ui.components.ConfirmDeleteDialog
 import com.example.todo.ui.components.DatePickerDialog
+import com.example.todo.ui.components.FieldChip
 import com.example.todo.ui.components.ReminderDialog
 import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.shared.TaskActionViewModel
@@ -239,20 +240,11 @@ fun TaskScreenContent(
                 modifier = Modifier.padding(vertical = 12.dp)
             )
             if (currentTask?.schedule?.reminder != null) {
-                InputChip(
-                    false,
+                FieldChip(
+                    label = currentTask.schedule.reminder.toFormattedString(),
                     onClick = { showReminderDialog = true },
-                    label = { Text(currentTask.schedule.reminder.toFormattedString()) },
-                    trailingIcon = {
-                        if (currentTask.schedule.repeat == null) {
-                            Icon(
-                                close, null,
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clickable { onReminderChanged(null) }
-                            )
-                        }
-                    }
+                    isDismissible = currentTask.schedule.repeat == null,
+                    onDismiss = { onReminderChanged(null) }
                 )
             } else {
                 Text("Add Reminder")
@@ -276,24 +268,11 @@ fun TaskScreenContent(
                     null,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
-                InputChip(
-                    false,
-                    onClick = { showReminderDialog = true },
-                    label = {
-                        Text(
-                            currentTask.schedule.repeat.toDisplayText(),
-                            maxLines = 1,
-                            modifier = Modifier.horizontalScroll(rememberScrollState())
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            close, null,
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clickable { onRepeatRemoved() }
-                        )
-                    }
+                FieldChip(
+                    label = currentTask.schedule.repeat!!.toDisplayText(),
+                    onClick = { navigateToRepeatForm(currentTask.schedule.reminder) },
+                    isDismissible = true,
+                    onDismiss = { onRepeatRemoved() }
                 )
             }
         }

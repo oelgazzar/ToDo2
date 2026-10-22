@@ -19,7 +19,7 @@ class TodoApplication : Application() {
                 NotificationChannel(
                     DEFAULT_NOTIFICATION_CHANNEL_ID,
                     "Todo",
-                    NotificationManager.IMPORTANCE_HIGH)
+                    NotificationManager.IMPORTANCE_DEFAULT)
             )
         }
     }

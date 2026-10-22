@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -23,7 +22,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,8 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.zIndex
 import com.example.test.arrow_back
 import com.example.todo.ui.components.DateField
 import com.example.todo.ui.components.DayOfWeekPicker
@@ -51,9 +48,9 @@ data class RepeatForm(val taskId: Long, val reminder: String? = null)
 @Composable
 fun RepeatScreen(
     navigateBack: () -> Unit,
-    viewModel: RepeatFormViewModel = hiltViewModel()
+    repeatState: RepeatFormState,
+    onRepeatSubmitted: suspend () -> Unit,
 ) {
-    val repeatState by viewModel.repeatState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -71,7 +68,7 @@ fun RepeatScreen(
                     TextButton(
                         onClick = {
                             coroutineScope.launch {
-                                viewModel.saveRepeat()
+                                onRepeatSubmitted()
                                 navigateBack()
                             }
                         }
@@ -88,8 +85,9 @@ fun RepeatScreen(
         RepeatContent(
             state = repeatState,
             modifier = Modifier
-            .padding(innerPadding)
-            .padding(horizontal = 16.dp)
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .zIndex(100f)
         )
     }
 }

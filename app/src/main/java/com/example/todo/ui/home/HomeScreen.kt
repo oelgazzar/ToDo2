@@ -9,9 +9,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
@@ -21,6 +23,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todo.data.sampleTodos
+import com.example.todo.models.Reminder
 import com.example.todo.models.Task
 import com.example.todo.ui.components.AddTaskFab
 import com.example.todo.ui.components.FilterType
@@ -34,22 +37,31 @@ object Home
 @Composable
 fun HomeScreen(
     navigateToTaskScreen: (Long) -> Unit,
+    navigateToRepeatForm: (Reminder?) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    quickAddViewModel: QuickAddViewModel = hiltViewModel()
 ) {
     val taskActionViewModel: TaskActionViewModel =
         hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val taskAction by taskActionViewModel.taskAction.collectAsStateWithLifecycle(null)
 
-    var showForm by remember { mutableStateOf(false) }
+    var showForm by rememberSaveable { mutableStateOf(false) }
     val snackBarState = remember { SnackbarHostState() }
+    val taskDraftState by quickAddViewModel.taskDraftState.collectAsStateWithLifecycle()
+    var shouldShowForm by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        showForm = shouldShowForm
+    }
+
 
     TaskActionEffect(
         taskAction,
         snackBarState,
-        onUndoDelete = viewModel::undoDelete,
-        onUndoComplete = viewModel::toggleCompleteTask
+        onUndoDelete = homeViewModel::undoDelete,
+        onUndoComplete = homeViewModel::toggleCompleteTask
     )
 
     Scaffold(
@@ -71,12 +83,20 @@ fun HomeScreen(
                     tasks = uiState.tasks,
                     totalTaskCount = uiState.taskCount,
                     onTaskClicked = { navigateToTaskScreen(it.id) },
-                    onTaskCompletionToggled = { task -> viewModel.toggleCompleteTask(task.id) },
+                    onTaskCompletionToggled = { task -> homeViewModel.toggleCompleteTask(task.id) },
                     showForm = showForm,
-                    onDismissForm = { showForm = false },
-                    onAddTask = viewModel::addTask,
+                    onDismissForm = {
+                        showForm = false
+                        quickAddViewModel.reset()
+                    },
+                    taskDraftState = taskDraftState,
+                    navigateToRepeatForm = {
+                        navigateToRepeatForm(it)
+                        shouldShowForm = true
+                    },
+                    onAddTask = quickAddViewModel::addTask,
                     selectedFilter = uiState.filter,
-                    onFilterChanged = viewModel::updateFilter,
+                    onFilterChanged = homeViewModel::updateFilter,
                     modifier = modifier
                         .padding(innerPadding)
                         .padding(horizontal = 16.dp)
@@ -94,7 +114,9 @@ fun HomeContent(
     onTaskCompletionToggled: (Task) -> Unit,
     showForm: Boolean,
     onDismissForm: () -> Unit,
-    onAddTask: (Task) -> Unit,
+    taskDraftState: TaskDraftState,
+    navigateToRepeatForm: (Reminder?) -> Unit,
+    onAddTask: () -> Unit,
     selectedFilter: FilterType,
     onFilterChanged: (FilterType) -> Unit,
     modifier: Modifier = Modifier
@@ -113,6 +135,8 @@ fun HomeContent(
         TaskFormSheet(
             onDismiss = onDismissForm,
             onAddTask = onAddTask,
+            taskDraftState = taskDraftState,
+            navigateToRepeatForm = navigateToRepeatForm,
             modifier = Modifier
         )
 
@@ -131,6 +155,8 @@ private fun HomeContentPrev() {
             onTaskCompletionToggled = {},
             showForm = false,
             onDismissForm = {},
+            taskDraftState = TaskDraftState(),
+            navigateToRepeatForm = {},
             onAddTask = {},
             selectedFilter = FilterType.ALL,
             onFilterChanged = {}

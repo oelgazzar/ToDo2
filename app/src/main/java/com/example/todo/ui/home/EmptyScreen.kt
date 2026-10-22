@@ -49,7 +49,7 @@ fun FilterType.toEmptyStateUI(totalTaskCount: Int) = when (totalTaskCount) {
 
         FilterType.ACTIVE -> EmptyStateUI(
             image = R.drawable.all_completed,
-            title = "All tasks complete",
+            title = "All tasks completed",
             description = "Nice work!"
         )
     }

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +35,7 @@ class RepeatFormViewModel @Inject constructor(
         }
     }
 
-    suspend fun saveRepeat() {
+    suspend fun onRepeatSubmitted() {
         val repeat = _repeatFormState.value.toRepeat()
         repository.updateRepeat(taskId, repeat)
     }

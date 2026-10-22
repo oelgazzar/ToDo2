@@ -27,7 +27,7 @@ fun TransparentTextField(
     style: TextStyle? = null,
     focusRequester: FocusRequester? = null,
 ) {
-    val textFieldModifier = focusRequester?.let { modifier.focusRequester(it) } ?: modifier
+    val textFieldModifier = if (focusRequester != null) modifier.focusRequester(focusRequester) else modifier
 
     BasicTextField(
         state = state,

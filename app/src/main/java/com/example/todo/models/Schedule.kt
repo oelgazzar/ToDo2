@@ -8,6 +8,5 @@ data class Schedule(
     @Embedded(prefix = "reminder_")
     val reminder: Reminder? = null,
     @Embedded(prefix = "repeat_")
-    val repeat: Repeat? = null
+    var repeat: Repeat? = null
 )
-

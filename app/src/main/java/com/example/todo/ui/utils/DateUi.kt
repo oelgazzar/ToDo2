@@ -5,11 +5,13 @@ import com.example.todo.models.Repeat
 import com.example.todo.models.toLocalDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
+private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
-private val fullFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, h a")
+private val fullFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, h:mm a")
 
 fun LocalDate.toDisplayText(today: LocalDate = LocalDate.now()): String {
     val daysInterval = ChronoUnit.DAYS.between(this, today).toInt()
@@ -26,8 +28,18 @@ fun LocalDate.toDisplayText(today: LocalDate = LocalDate.now()): String {
     }
 }
 
+fun LocalDateTime.toDisplayText(today: LocalDate = LocalDate.now()): String {
+    return "${toLocalDate().toDisplayText(today)}, ${toLocalTime().toFormattedString()}"
+}
+
+fun Reminder.toDisplayText(today: LocalDate = LocalDate.now()) = this.toLocalDateTime().toDisplayText(today)
+
 fun LocalDate.toFormattedString(): String {
     return this.format(dateFormatter)
+}
+
+fun LocalTime.toFormattedString(): String {
+    return this.format(timeFormatter)
 }
 
 fun LocalDateTime.toFormattedString(): String {

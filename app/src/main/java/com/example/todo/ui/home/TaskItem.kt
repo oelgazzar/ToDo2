@@ -19,14 +19,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.test.check
 import com.example.test.radio_button_unchecked
-import com.example.test.star
+import com.example.test.repeat
+import com.example.test.schedule
 import com.example.test.target_check
+import com.example.todo.models.Reminder
+import com.example.todo.models.Repeat
 import com.example.todo.models.Schedule
 import com.example.todo.models.Task
+import com.example.todo.models.toLocalDateTime
+import com.example.todo.ui.repeat.RepeatType
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.toDisplayText
 import com.example.todo.ui.utils.toUi
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 fun TaskItem(
@@ -36,11 +42,11 @@ fun TaskItem(
     modifier: Modifier = Modifier
 ) {
     val categoryUi = task.category?.toUi()
-    
+
     Column(
         modifier = Modifier
-                .clickable(onClick = onTaskClicked)
-                .then(modifier)
+            .clickable(onClick = onTaskClicked)
+            .then(modifier)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +74,8 @@ fun TaskItem(
         task.details?.ifBlank { null }?.let { details ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
                     .padding(start = 40.dp)
             ) {
                 Text(
@@ -96,7 +103,8 @@ fun TaskItem(
         task.schedule.dueDate?.let { dueDate ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
                     .padding(start = 40.dp)
             ) {
                 Icon(
@@ -112,6 +120,38 @@ fun TaskItem(
                 )
             }
         }
+
+        task.schedule.reminder?.let { reminder ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .padding(start = 40.dp)
+            ) {
+                Icon(
+                    schedule,
+                    null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(18.dp)
+                )
+                Text(
+                    text = reminder.toLocalDateTime().toDisplayText(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+                task.schedule.repeat?.let {
+                    Icon(repeat, null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .size(16.dp)
+
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -123,7 +163,16 @@ private fun TaskItemPrev() {
             task = Task(
                 title = "Task 1",
                 category = null,
-                schedule = Schedule(dueDate = LocalDate.now()),
+                schedule = Schedule(
+                    dueDate = LocalDate.now(),
+                    reminder = Reminder
+                        (
+                        LocalDate.now()
+                            .plusDays(1),
+                        LocalTime.of(9, 25)
+                    ),
+                repeat = Repeat(RepeatType.Day),
+                ),
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
