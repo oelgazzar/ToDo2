@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,112 +45,119 @@ fun TaskItem(
 ) {
     val categoryUi = task.category?.toUi()
 
-    Column(
-        modifier = Modifier
+    Surface(
+        color = CardDefaults.cardColors().containerColor,
+        modifier = modifier
             .clickable(onClick = onTaskClicked)
-            .then(modifier)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
-            Icon(
-                if (task.completed) check else radio_button_unchecked,
-                null,
-                tint = if (task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable(
-                        onClick = { onToggleCompleted() }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    if (task.completed) check else radio_button_unchecked,
+                    null,
+                    tint = if (task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable(
+                            onClick = { onToggleCompleted() }
+                        )
+                        .testTag("task_completed_checkbox")
+                )
+
+                Text(
+                    text = task.title,
+                    textDecoration = if (task.completed) TextDecoration.LineThrough else null,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                )
+            }
+
+            task.details?.ifBlank { null }?.let { details ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .padding(start = 40.dp)
+                ) {
+                    Text(
+                        details,
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    .testTag("task_completed_checkbox")
-            )
-
-            Text(
-                text = task.title,
-                textDecoration = if (task.completed) TextDecoration.LineThrough else null,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-            )
-        }
-
-        task.details?.ifBlank { null }?.let { details ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .padding(start = 40.dp)
-            ) {
-                Text(
-                    details,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-//                categoryUi?.icon?.let {
-//                    Icon(
-//                        it,
-//                        null,
-//                        tint = categoryUi.color,
-//                        modifier = Modifier.size(15.dp)
-//                            .padding(end = 4.dp)
-//                    )
-//                }
-//
-//                Text(
-//                    text = category.name,
-//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                    style = MaterialTheme.typography.labelMedium,
-//                )
+                    //                categoryUi?.icon?.let {
+                    //                    Icon(
+                    //                        it,
+                    //                        null,
+                    //                        tint = categoryUi.color,
+                    //                        modifier = Modifier.size(15.dp)
+                    //                            .padding(end = 4.dp)
+                    //                    )
+                    //                }
+                    //
+                    //                Text(
+                    //                    text = category.name,
+                    //                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    //                    style = MaterialTheme.typography.labelMedium,
+                    //                )
+                }
             }
-        }
 
-        task.schedule.dueDate?.let { dueDate ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .padding(start = 40.dp)
-            ) {
-                Icon(
-                    target_check,
-                    null,
+            task.schedule.dueDate?.let { dueDate ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(18.dp)
-                )
-                Text(
-                    text = "Due ${dueDate.toDisplayText()}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
+                        .padding(top = 4.dp)
+                        .padding(start = 40.dp)
+                ) {
+                    Icon(
+                        target_check,
+                        null,
+                        modifier = Modifier
+                            .size(18.dp)
+                    )
+                    Text(
+                        text = "Due ${dueDate.toDisplayText()}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
             }
-        }
 
-        task.schedule.reminder?.let { reminder ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .padding(start = 40.dp)
-            ) {
-                Icon(
-                    schedule,
-                    null,
-                    tint = MaterialTheme.colorScheme.primary,
+            task.schedule.reminder?.let { reminder ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(18.dp)
-                )
-                Text(
-                    text = reminder.toLocalDateTime().toDisplayText(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-                task.schedule.repeat?.let {
-                    Icon(repeat, null,
+                        .padding(top = 4.dp)
+                        .padding(start = 40.dp)
+                ) {
+                    Icon(
+                        schedule,
+                        null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(start = 4.dp)
-                            .size(16.dp)
-
+                            .size(18.dp)
                     )
+                    Text(
+                        text = reminder.toLocalDateTime().toDisplayText(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                    task.schedule.repeat?.let {
+                        Icon(
+                            repeat, null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .size(16.dp)
+
+                        )
+                    }
                 }
             }
         }
@@ -162,7 +171,6 @@ private fun TaskItemPrev() {
         TaskItem(
             task = Task(
                 title = "Task 1",
-                category = null,
                 schedule = Schedule(
                     dueDate = LocalDate.now(),
                     reminder = Reminder
@@ -171,8 +179,9 @@ private fun TaskItemPrev() {
                             .plusDays(1),
                         LocalTime.of(9, 25)
                     ),
-                repeat = Repeat(RepeatType.Day),
+                    repeat = Repeat(RepeatType.Day),
                 ),
+                position = -1,
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
@@ -189,11 +198,11 @@ private fun CompletedTaskItemPrev() {
             task = Task(
                 title = "Task 1",
                 details = "First task",
-                category = null,
                 completed = true,
                 schedule = Schedule(
                     dueDate = LocalDate.now()
-                )
+                ),
+                position = -1
             ),
             onTaskClicked = {},
             onToggleCompleted = {},

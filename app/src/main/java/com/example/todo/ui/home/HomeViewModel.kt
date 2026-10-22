@@ -3,7 +3,6 @@ package com.example.todo.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.PreferenceRepository
-import com.example.todo.data.PreferenceRepositoryImpl
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.Task
 import com.example.todo.ui.components.FilterType
@@ -39,7 +38,7 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> =
         combine(repository.getAllTasks(), _filter) { tasks, filter ->
             HomeUiState(
-                tasks = tasks.applyFilter(filter),
+                tasks = tasks.applyFilter(filter).sortedBy { it.position },
                 taskCount = tasks.size,
                 filter = if (tasks.isNotEmpty()) filter else FilterType.ALL,
                 isLoading = false,
@@ -96,6 +95,12 @@ class HomeViewModel @Inject constructor(
         FilterType.ALL -> this
         FilterType.COMPLETED -> filter { it.completed }
         FilterType.ACTIVE -> filter { !it.completed }
+    }
+
+    fun saveOrder(tasks: List<Task>) {
+        viewModelScope.launch {
+            repository.updatePositions(tasks)
+        }
     }
 }
 

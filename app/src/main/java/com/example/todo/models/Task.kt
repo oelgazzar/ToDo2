@@ -1,6 +1,5 @@
 package com.example.todo.models
 
-import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 data class Task(
@@ -10,7 +9,8 @@ data class Task(
     val category: Category? = null,
     val completed: Boolean = false,
     val createdAt: LocalDate = LocalDate.now(),
-    val schedule: Schedule = Schedule()
+    val schedule: Schedule = Schedule(),
+    val position: Long
 ) {
     val isRepeatable: Boolean
         get() = schedule.repeat != null

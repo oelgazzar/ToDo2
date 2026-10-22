@@ -20,4 +20,5 @@ interface TaskRepository {
     suspend fun updateRepeat(taskId: Long, repeat: Repeat)
     suspend fun updateReminder(taskId: Long, reminder: Reminder?)
     suspend fun removeRepeat(taskId: Long)
+    suspend fun updatePositions(tasks: List<Task>)
 }

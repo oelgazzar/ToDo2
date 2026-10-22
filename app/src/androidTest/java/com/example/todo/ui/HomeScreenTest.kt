@@ -16,7 +16,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -43,7 +42,10 @@ class HomeScreenTest {
     @Test
     fun addTaskButton_displaysTask() = runTest{
         composeTestRule.setContent {
-            HomeScreen({})
+            HomeScreen(
+                navigateToTaskScreen = {},
+                navigateToRepeatFormScreen = {}
+            )
         }
         assertEquals(0, repo.getAllTasks().first().size)
         composeTestRule.apply {
@@ -60,11 +62,11 @@ class HomeScreenTest {
         repo.upsertTask(Task(
             title = "Task title",
             details = "Task details",
-            completed = false
+            position = -1
         ))
 
         composeTestRule.setContent {
-            HomeScreen({})
+            HomeScreen({}, {})
         }
         composeTestRule.apply {
             onNodeWithTag("task_completed_checkbox").performClick()
@@ -78,11 +80,12 @@ class HomeScreenTest {
         repo.upsertTask(Task(
             title = "Task title",
             details = "Task details",
-            schedule = Schedule(dueDate = LocalDate.of(2026, 10, 20))
+            schedule = Schedule(dueDate = LocalDate.of(2026, 10, 20)),
+            position = -1
         ))
 
         composeTestRule.setContent {
-            HomeScreen({})
+            HomeScreen({}, {})
         }
         composeTestRule.apply {
             onNodeWithText("Due Today").assertIsDisplayed()

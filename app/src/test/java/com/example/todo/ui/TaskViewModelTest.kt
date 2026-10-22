@@ -35,7 +35,7 @@ class TaskViewModelTest {
         id = 1L,
         title = "Original title",
         details = "Original details",
-        completed = false
+        position = -1
     )
 
     private lateinit var repository: FakeTaskRepository

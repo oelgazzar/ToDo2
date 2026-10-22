@@ -85,4 +85,7 @@ dependencies {
     // datastore
     implementation(libs.androidx.datastore.preferences)
 
+    // reoderable
+    implementation(libs.reorderable)
+
 }

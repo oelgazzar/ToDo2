@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
@@ -319,10 +317,9 @@ private fun TaskScreenContentPrev() {
             titleFieldState = rememberTextFieldState(),
             detailsFieldState = rememberTextFieldState(),
             currentTask = Task(
-                id = 0,
                 title = "Task 1",
-                category = null,
                 schedule = Schedule(dueDate = LocalDate.now()),
+                position = -1,
             ),
             toggleCompleted = {},
             onDueDateChanged = {},

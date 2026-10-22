@@ -16,7 +16,7 @@ class TaskRepositoryImp @Inject constructor(
     private val taskDao: TaskDao,
     private val db: AppDatabase,
     private val schedular: ReminderSchedular
-): TaskRepository {
+) : TaskRepository {
     override fun getAllTasks(): Flow<List<Task>> {
         return taskDao.getAllTasks().map { it.toDomain() }
     }
@@ -24,7 +24,12 @@ class TaskRepositoryImp @Inject constructor(
     override fun getTask(it: Long): Flow<Task?> = taskDao.getTask(it).map { it?.toDomain() }
 
     override suspend fun upsertTask(task: Task) {
-        val taskId = taskDao.upsertTask(task.toEntity())
+        val entity = if (task.id == 0L) { // New task, assign position at the tail
+            val position = taskDao.getNextPosition()
+            task.copy(position = position).toEntity()
+        } else task.toEntity()
+
+        val taskId = taskDao.upsertTask(entity)
         schedular.schedule(taskId)
     }
 
@@ -60,8 +65,10 @@ class TaskRepositoryImp @Inject constructor(
                 .getTask(taskId)
                 .first()
                 ?.let {
-                    val schedule = it.schedule.copy(reminder = reminder,
-                        repeat = if (reminder != null) it.schedule.repeat else null)
+                    val schedule = it.schedule.copy(
+                        reminder = reminder,
+                        repeat = if (reminder != null) it.schedule.repeat else null
+                    )
                     taskDao.upsertTask(it.copy(schedule = schedule))
                     if (reminder != null) {
                         schedular.schedule(taskId)
@@ -80,7 +87,7 @@ class TaskRepositoryImp @Inject constructor(
                 .first()
                 ?.let {
                     val reminder = Reminder(
-                        date = repeat.startDate?: LocalDate.now(),
+                        date = repeat.startDate ?: LocalDate.now(),
                         time = repeat.time
                     )
                     val schedule = Schedule(reminder = reminder, repeat = repeat)
@@ -99,6 +106,14 @@ class TaskRepositoryImp @Inject constructor(
                     val schedule = it.schedule.copy(repeat = null)
                     taskDao.upsertTask(it.copy(schedule = schedule))
                 }
+        }
+    }
+
+    override suspend fun updatePositions(tasks: List<Task>) {
+        db.withWriteTransaction {
+            tasks.forEachIndexed { index, task ->
+                taskDao.updatePosition(task.id, index.toLong())
+            }
         }
     }
 }

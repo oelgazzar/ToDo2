@@ -90,6 +90,8 @@ fun HomeScreen(
                     totalTaskCount = uiState.taskCount,
                     selectedFilter = uiState.filter,
                     onFilterChanged = homeViewModel::updateFilter,
+                    // Sorting
+                    saveOrder = homeViewModel::saveOrder,
                     // Task actions
                     onTaskClicked = { navigateToTaskScreen(it.id) },
                     onTaskCompletionToggled = { task -> homeViewModel.toggleCompleteTask(task.id) },
@@ -121,6 +123,9 @@ fun HomeContent(
     totalTaskCount: Int,
     selectedFilter: FilterType,
     onFilterChanged: (FilterType) -> Unit,
+    // Sorting
+    saveOrder: (List<Task>) -> Unit,
+
     // Task actions
     onTaskClicked: (Task) -> Unit,
     onTaskCompletionToggled: (Task) -> Unit,
@@ -138,6 +143,7 @@ fun HomeContent(
         totalTaskCount = totalTaskCount,
         selectedFilter = selectedFilter,
         onFilterChanged = onFilterChanged,
+        saveOrder = saveOrder,
 
         onTaskClicked = onTaskClicked,
         onTaskCompletionToggled = onTaskCompletionToggled,
@@ -170,6 +176,7 @@ private fun HomeContentPrev() {
             navigateToRepeatForm = {},
             onAddTask = {},
             selectedFilter = FilterType.ALL,
+            saveOrder = {},
             onFilterChanged = {}
         )
     }

@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import com.example.todo.MainActivity
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.Task
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -45,7 +44,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
-                completed = false
+                position = -1
             )
         )
         composeTestRule.apply {
@@ -63,7 +62,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
-                completed = false
+                position = -1
             )
         )
         composeTestRule.apply {
@@ -82,7 +81,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
-                completed = false
+                position = -1
             )
         )
         composeTestRule.apply {
@@ -107,7 +106,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
-                completed = false
+                position = -1
             )
         )
         composeTestRule.apply {
@@ -124,7 +123,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
-                completed = false
+                position = -1
             )
         )
         composeTestRule.apply {
@@ -147,6 +146,7 @@ class TaskScreenTest {
             Task(
                 title = "Task title",
                 details = "Task details",
+                position = -1,
             )
         )
         composeTestRule.apply {

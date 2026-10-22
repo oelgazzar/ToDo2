@@ -1,4 +1,4 @@
-package com.example.todo.utils
+package com.example.todo.notifications
 
 import android.Manifest
 import android.content.Context

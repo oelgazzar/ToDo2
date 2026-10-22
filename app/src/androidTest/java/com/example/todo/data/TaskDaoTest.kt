@@ -37,7 +37,7 @@ class TaskDaoTest {
         val task = TaskEntity(
             title = "Test Task",
             category = Category.WORK,
-            completed = false
+            position = -1
         )
 
         dao.upsertTask(task)
@@ -60,7 +60,7 @@ class TaskDaoTest {
         val task = TaskEntity(
             title = "Test Task",
             category = Category.WORK,
-            completed = false
+            position = -1
         )
 
         dao.upsertTask(task)
@@ -89,7 +89,7 @@ class TaskDaoTest {
             id = 324L,
             title = "Test Task",
             category = Category.WORK,
-            completed = false
+            position = -1
         )
 
         dao.upsertTask(task)

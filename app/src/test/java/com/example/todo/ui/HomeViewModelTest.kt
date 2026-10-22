@@ -6,10 +6,8 @@ import com.example.todo.data.PreferenceRepository
 import com.example.todo.fakes.FakeTaskRepository
 import com.example.todo.models.Task
 import com.example.todo.ui.components.FilterType
-import com.example.todo.ui.home.HomeUiState
 import com.example.todo.ui.home.HomeViewModel
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
@@ -44,6 +42,7 @@ class HomeViewModelTest {
 
         val testTask =  Task(
             title = "Test Task",
+            position = -1,
         )
         viewModel.addTask(testTask)
 
@@ -61,7 +60,7 @@ class HomeViewModelTest {
                 Task(
                     id = 1,
                     title = "Test Task",
-                    completed = false
+                    position = -1
                 )
             )
         )

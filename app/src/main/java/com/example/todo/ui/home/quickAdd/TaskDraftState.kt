@@ -45,4 +45,5 @@ fun TaskDraftState.toTask() = Task(
         reminder = reminder,
         repeat = repeat
     ),
+    position = -1,
 )

@@ -38,4 +38,10 @@ interface TaskDao {
 
     @Query("UPDATE task SET dueDate = :date WHERE id = :taskId")
     suspend fun updateDueDate(taskId: Long, date: String?)
+
+    @Query("UPDATE task SET position = :position WHERE id = :taskId")
+    suspend fun updatePosition(taskId: Long, position: Long)
+
+    @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM task")
+    suspend fun getNextPosition(): Long
 }

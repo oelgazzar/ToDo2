@@ -1,4 +1,4 @@
-package com.example.todo.utils
+package com.example.todo.notifications
 
 import android.Manifest
 import android.app.Activity
@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue

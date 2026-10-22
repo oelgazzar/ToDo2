@@ -3,7 +3,7 @@ package com.example.todo.schedular
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.todo.utils.sendNotification
+import com.example.todo.notifications.sendNotification
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

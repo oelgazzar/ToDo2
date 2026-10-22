@@ -60,7 +60,6 @@ fun QuickAddSheet(
     modifier: Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var showDetailsField by remember { mutableStateOf(false) }
 
     val titleFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
@@ -73,14 +72,9 @@ fun QuickAddSheet(
     )
 
     // Set focus on text fields
-    LaunchedEffect(sheetState.currentValue, showDetailsField) {
+    LaunchedEffect(sheetState.currentValue, ) {
         if (sheetState.currentValue == SheetValue.Expanded) {
             titleFocusRequester.requestFocus()
-        }
-
-        if (showDetailsField) {
-            delay(50.milliseconds)
-            detailsFocusRequester.requestFocus()
         }
     }
 
@@ -173,6 +167,12 @@ fun QuickAddSheetContent(
 ) {
     var showDetailsField by remember { mutableStateOf(false) }
 
+    LaunchedEffect(showDetailsField) {
+        if (showDetailsField) {
+            detailsFocusRequester.requestFocus()
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
@@ -234,10 +234,7 @@ fun QuickAddSheetContent(
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
-                        onClick = {
-                            showDetailsField = true
-                            detailsFocusRequester.requestFocus()
-                        }
+                        onClick = {  showDetailsField = true }
                     )
             )
 
