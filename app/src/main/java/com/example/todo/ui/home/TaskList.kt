@@ -32,10 +32,12 @@ import com.example.todo.ui.theme.AppTheme
 fun TaskList(
     tasks: List<Task>,
     totalTaskCount: Int,
-    onTaskClicked: (Task) -> Unit,
-    onTaskCompletionToggled: (Task) -> Unit,
     selectedFilter: FilterType,
     onFilterChanged: (FilterType) -> Unit,
+
+    onTaskClicked: (Task) -> Unit,
+    onTaskCompletionToggled: (Task) -> Unit,
+
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -86,6 +88,7 @@ fun TaskList(
                 }
             }
 
+            /* Filter options */
             if (tasks.isNotEmpty() || selectedFilter != FilterType.ALL) {
                 item {
                     FilterRow(
@@ -96,6 +99,7 @@ fun TaskList(
                 }
             }
 
+            /* Empty state */
             if (tasks.isEmpty()) {
                 item {
                     EmptyScreen(
@@ -104,6 +108,8 @@ fun TaskList(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
+
+            /* Actual lists */
             } else {
                 items(tasks, key = { it.id }) { task ->
                     TaskItem(

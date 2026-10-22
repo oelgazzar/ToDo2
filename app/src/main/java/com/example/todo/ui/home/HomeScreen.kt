@@ -27,6 +27,9 @@ import com.example.todo.models.Reminder
 import com.example.todo.models.Task
 import com.example.todo.ui.components.AddTaskFab
 import com.example.todo.ui.components.FilterType
+import com.example.todo.ui.home.quickAdd.QuickAddSheet
+import com.example.todo.ui.home.quickAdd.QuickAddViewModel
+import com.example.todo.ui.home.quickAdd.TaskDraftState
 import com.example.todo.ui.shared.TaskActionViewModel
 import com.example.todo.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
@@ -37,25 +40,27 @@ object Home
 @Composable
 fun HomeScreen(
     navigateToTaskScreen: (Long) -> Unit,
-    navigateToRepeatForm: (Reminder?) -> Unit,
-    modifier: Modifier = Modifier,
+    navigateToRepeatFormScreen: (Reminder?) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
     quickAddViewModel: QuickAddViewModel = hiltViewModel()
 ) {
+    // For published edit actions e.g. delete and complete
     val taskActionViewModel: TaskActionViewModel =
         hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
+
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val taskDraftState by quickAddViewModel.taskDraftState.collectAsStateWithLifecycle()
     val taskAction by taskActionViewModel.taskAction.collectAsStateWithLifecycle(null)
 
-    var showForm by rememberSaveable { mutableStateOf(false) }
+    var shouldShowQuickAddSheet by rememberSaveable { mutableStateOf(false) }
+    var showQuickAddSheet by rememberSaveable { mutableStateOf(false) }
     val snackBarState = remember { SnackbarHostState() }
-    val taskDraftState by quickAddViewModel.taskDraftState.collectAsStateWithLifecycle()
-    var shouldShowForm by rememberSaveable { mutableStateOf(false) }
 
+
+    // Show form (sheet) when return from repeat Screen
     LaunchedEffect(Unit) {
-        showForm = shouldShowForm
+        showQuickAddSheet = shouldShowQuickAddSheet
     }
-
 
     TaskActionEffect(
         taskAction,
@@ -67,7 +72,7 @@ fun HomeScreen(
     Scaffold(
         topBar = { HomeAppBar() },
         floatingActionButton = {
-            AddTaskFab(onClick = { showForm = true })
+            AddTaskFab(onClick = { showQuickAddSheet = true })
         },
         snackbarHost = {
             SnackbarHost(snackBarState)
@@ -75,29 +80,32 @@ fun HomeScreen(
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
-                LoadingScreen(modifier)
+                LoadingScreen()
             }
 
             else -> {
                 HomeContent(
+                    // Tasks and filter
                     tasks = uiState.tasks,
                     totalTaskCount = uiState.taskCount,
-                    onTaskClicked = { navigateToTaskScreen(it.id) },
-                    onTaskCompletionToggled = { task -> homeViewModel.toggleCompleteTask(task.id) },
-                    showForm = showForm,
-                    onDismissForm = {
-                        showForm = false
-                        quickAddViewModel.reset()
-                    },
-                    taskDraftState = taskDraftState,
-                    navigateToRepeatForm = {
-                        navigateToRepeatForm(it)
-                        shouldShowForm = true
-                    },
-                    onAddTask = quickAddViewModel::addTask,
                     selectedFilter = uiState.filter,
                     onFilterChanged = homeViewModel::updateFilter,
-                    modifier = modifier
+                    // Task actions
+                    onTaskClicked = { navigateToTaskScreen(it.id) },
+                    onTaskCompletionToggled = { task -> homeViewModel.toggleCompleteTask(task.id) },
+                    // Quick add
+                    taskDraftState = taskDraftState,
+                    onAddTask = quickAddViewModel::addTask,
+                    showQuickAddSheet = showQuickAddSheet,
+                    onDismissQuickAddSheet = {
+                        showQuickAddSheet = false
+                        quickAddViewModel.reset()
+                    },
+                    navigateToRepeatForm = {
+                        navigateToRepeatFormScreen(it)
+                        shouldShowQuickAddSheet = true
+                    },
+                    modifier = Modifier
                         .padding(innerPadding)
                         .padding(horizontal = 16.dp)
                 )
@@ -108,40 +116,43 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent(
+    // Tasks and filter
     tasks: List<Task>,
     totalTaskCount: Int,
+    selectedFilter: FilterType,
+    onFilterChanged: (FilterType) -> Unit,
+    // Task actions
     onTaskClicked: (Task) -> Unit,
     onTaskCompletionToggled: (Task) -> Unit,
-    showForm: Boolean,
-    onDismissForm: () -> Unit,
+    // Quick add
+    showQuickAddSheet: Boolean,
+    onDismissQuickAddSheet: () -> Unit,
     taskDraftState: TaskDraftState,
     navigateToRepeatForm: (Reminder?) -> Unit,
     onAddTask: () -> Unit,
-    selectedFilter: FilterType,
-    onFilterChanged: (FilterType) -> Unit,
+
     modifier: Modifier = Modifier
 ) {
     TaskList(
         tasks,
         totalTaskCount = totalTaskCount,
-        onTaskClicked = onTaskClicked,
-        onTaskCompletionToggled = onTaskCompletionToggled,
         selectedFilter = selectedFilter,
         onFilterChanged = onFilterChanged,
+
+        onTaskClicked = onTaskClicked,
+        onTaskCompletionToggled = onTaskCompletionToggled,
         modifier = modifier
     )
 
-    if (showForm) {
-        TaskFormSheet(
-            onDismiss = onDismissForm,
-            onAddTask = onAddTask,
+    if (showQuickAddSheet) {
+        QuickAddSheet(
             taskDraftState = taskDraftState,
+            onDismiss = onDismissQuickAddSheet,
+            onAddTask = onAddTask,
             navigateToRepeatForm = navigateToRepeatForm,
             modifier = Modifier
         )
-
     }
-
 }
 
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
@@ -153,8 +164,8 @@ private fun HomeContentPrev() {
             totalTaskCount = sampleTodos.size,
             onTaskClicked = {},
             onTaskCompletionToggled = {},
-            showForm = false,
-            onDismissForm = {},
+            showQuickAddSheet = false,
+            onDismissQuickAddSheet = {},
             taskDraftState = TaskDraftState(),
             navigateToRepeatForm = {},
             onAddTask = {},

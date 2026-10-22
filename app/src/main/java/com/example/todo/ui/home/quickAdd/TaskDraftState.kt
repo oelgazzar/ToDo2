@@ -1,4 +1,4 @@
-package com.example.todo.ui.home
+package com.example.todo.ui.home.quickAdd
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Stable

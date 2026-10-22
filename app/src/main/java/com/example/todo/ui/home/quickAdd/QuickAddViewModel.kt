@@ -1,10 +1,9 @@
-package com.example.todo.ui.home
+package com.example.todo.ui.home.quickAdd
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.Reminder
-import com.example.todo.models.Task
 import com.example.todo.ui.repeat.RepeatFormState
 import com.example.todo.ui.repeat.toRepeat
 import dagger.hilt.android.lifecycle.HiltViewModel

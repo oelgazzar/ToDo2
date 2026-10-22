@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.todo.ui.home
+package com.example.todo.ui.home.quickAdd
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,17 +43,19 @@ import com.example.todo.models.Repeat
 import com.example.todo.ui.components.FieldChip
 import com.example.todo.ui.components.ReminderDialog
 import com.example.todo.ui.components.TransparentTextField
+import com.example.todo.ui.repeat.RepeatType
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.toDisplayText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun TaskFormSheet(
-    onDismiss: () -> Unit,
-    onAddTask: () -> Unit,
+fun QuickAddSheet(
     taskDraftState: TaskDraftState,
+    onAddTask: () -> Unit,
+    onDismiss: () -> Unit,
     navigateToRepeatForm: (Reminder?) -> Unit,
     modifier: Modifier,
 ) {
@@ -62,33 +63,24 @@ fun TaskFormSheet(
     var showDetailsField by remember { mutableStateOf(false) }
 
     val titleFocusRequester = remember { FocusRequester() }
-    val detailsFocusRequester =
-        remember(showDetailsField) { if (showDetailsField) FocusRequester() else null }
+    val detailsFocusRequester = remember { FocusRequester() }
     var showReminderDialog by remember { mutableStateOf(false) }
     var showDiscardTaskConfirmDialog by remember { mutableStateOf(false) }
 
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-//        confirmValueChange = { targetValue ->
-//            if (targetValue == SheetValue.Hidden && !taskDraftState.isEmpty) {
-//                showDiscardTaskConfirmDialog = true
-//                false
-//            } else {
-//                true
-//            }
-//        }
     )
 
-    LaunchedEffect(sheetState.currentValue) {
+    // Set focus on text fields
+    LaunchedEffect(sheetState.currentValue, showDetailsField) {
         if (sheetState.currentValue == SheetValue.Expanded) {
             titleFocusRequester.requestFocus()
         }
-    }
 
-    LaunchedEffect(showDetailsField) {
         if (showDetailsField) {
             delay(50.milliseconds)
-            detailsFocusRequester?.requestFocus()
+            detailsFocusRequester.requestFocus()
         }
     }
 
@@ -104,114 +96,21 @@ fun TaskFormSheet(
         sheetState = sheetState,
         modifier = modifier
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .navigationBarsPadding()
-                .imePadding()
-        ) {
-            // --------------------- title -------------------------- //
-            TransparentTextField(
-                state = taskDraftState.title,
-                placeholderText = "New Task",
-                focusRequester = titleFocusRequester,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // --------------------- Details -------------------------- //
-            if (showDetailsField) {
-                TransparentTextField(
-                    state = taskDraftState.details,
-                    placeholderText = "Add details",
-                    style = MaterialTheme.typography.bodyMedium,
-                    focusRequester = detailsFocusRequester,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // --------------------- Reminder -------------------------- //
-            if (taskDraftState.reminder != null) {
-                FieldChip(
-                    label = (taskDraftState.reminder as Reminder).toDisplayText(),
-                    onClick = { showReminderDialog = true },
-                    isDismissible = taskDraftState.repeat == null,
-                    onDismiss = { taskDraftState.updateReminder(null) },
-                    icon = schedule
-                )
-            }
-
-            // --------------------- Repeat -------------------------- //
-            if (taskDraftState.repeat != null) {
-                FieldChip(
-                    label = (taskDraftState.repeat as Repeat).toDisplayText(),
-                    onClick = { navigateToRepeatForm(taskDraftState.reminder) },
-                    isDismissible = true,
-                    onDismiss = { taskDraftState.updateRepeat(null) },
-                    icon = repeat
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                /* Add Details Button */
-                Icon(
-                    menu_open,
-                    null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(
-                            onClick = {
-                                showDetailsField = true
-                                detailsFocusRequester?.requestFocus()
-                            }
-                        )
-                )
-
-                Icon(
-                    schedule,
-                    null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(
-                            onClick = {
-                                showReminderDialog = true
-                            }
-
-                        )
-                )
-
-                Icon(
-                    star,
-                    null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(
-                            onClick = {
-                            }
-
-                        )
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                /* Save Button */
-                TextButton(
-                    onClick = {
-                        onAddTask()
-                        onDismiss()
-                    },
-                    enabled = taskDraftState.title.text.isNotBlank(),
-                ) {
-                    Text("Save")
+        QuickAddSheetContent(
+            taskDraftState = taskDraftState,
+            titleFocusRequester = titleFocusRequester,
+            detailsFocusRequester = detailsFocusRequester,
+            onDismiss = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                }.invokeOnCompletion {
+                    onDismiss()
                 }
-            }
-
-        }
+            },
+            onAddTask = onAddTask,
+            navigateToRepeatForm = navigateToRepeatForm,
+            onShowReminderDialog = { showReminderDialog = true }
+        )
     }
 
     if (showReminderDialog) {
@@ -261,38 +160,70 @@ fun TaskFormSheet(
     }
 }
 
-@Preview
 @Composable
-private fun TaskFormSheetPrev() {
-    AppTheme {
-        TaskFormSheet(
-            onDismiss = {},
-            onAddTask = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            modifier = Modifier
-        )
-    }
-}
+fun QuickAddSheetContent(
+    taskDraftState: TaskDraftState,
+    titleFocusRequester: FocusRequester,
+    detailsFocusRequester: FocusRequester,
+    onAddTask: () -> Unit,
+    onDismiss: () -> Unit,
+    navigateToRepeatForm: (Reminder?) -> Unit,
+    onShowReminderDialog: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showDetailsField by remember { mutableStateOf(false) }
 
-@Preview
-@Composable
-private fun ContentPrev() {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
             .fillMaxWidth()
-//                .wrapContentHeight()
-            .imePadding()
-            .navigationBarsPadding()
             .padding(16.dp)
+            .navigationBarsPadding()
+            .imePadding()
     ) {
+        // --------------------- title -------------------------- //
         TransparentTextField(
-            state = rememberTextFieldState(),
+            state = taskDraftState.title,
             placeholderText = "New Task",
+            focusRequester = titleFocusRequester,
         )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // --------------------- Details -------------------------- //
+        if (showDetailsField) {
+            TransparentTextField(
+                state = taskDraftState.details,
+                placeholderText = "Add details",
+                style = MaterialTheme.typography.bodyMedium,
+                focusRequester = detailsFocusRequester,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // --------------------- Reminder -------------------------- //
+        if (taskDraftState.reminder != null) {
+            FieldChip(
+                label = (taskDraftState.reminder as Reminder).toDisplayText(),
+                onClick = onShowReminderDialog,
+                isDismissible = taskDraftState.repeat == null,
+                onDismiss = { taskDraftState.updateReminder(null) },
+                icon = schedule
+            )
+        }
+
+        // --------------------- Repeat -------------------------- //
+        if (taskDraftState.repeat != null) {
+            FieldChip(
+                label = (taskDraftState.repeat as Repeat).toDisplayText(),
+                onClick = { navigateToRepeatForm(taskDraftState.reminder) },
+                isDismissible = true,
+                onDismiss = { taskDraftState.updateRepeat(null) },
+                icon = repeat
+            )
+        }
 
         Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -303,8 +234,30 @@ private fun ContentPrev() {
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
-                        onClick = {}
+                        onClick = {
+                            showDetailsField = true
+                            detailsFocusRequester.requestFocus()
+                        }
+                    )
+            )
 
+            Icon(
+                schedule,
+                null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        onClick = onShowReminderDialog
+                    )
+            )
+
+            Icon(
+                star,
+                null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(
+                        onClick = {}
                     )
             )
 
@@ -313,12 +266,37 @@ private fun ContentPrev() {
             /* Save Button */
             TextButton(
                 onClick = {
+                    onAddTask()
+                    onDismiss()
                 },
-                enabled = false,
+                enabled = taskDraftState.title.text.isNotBlank(),
             ) {
                 Text("Save")
             }
         }
 
+    }
+}
+
+@Preview
+@Composable
+private fun QuickAddSheetContentPrev() {
+    AppTheme {
+        QuickAddSheetContent(
+            taskDraftState = TaskDraftState(
+                reminder = Reminder(
+                    date = LocalDate.now(),
+                    time = null
+                ),
+                repeat = Repeat(RepeatType.Day)
+            ),
+            titleFocusRequester = remember { FocusRequester() },
+            detailsFocusRequester = remember { FocusRequester() },
+            onDismiss = {},
+            onAddTask = {},
+            navigateToRepeatForm = {},
+            onShowReminderDialog = {},
+            modifier = Modifier
+        )
     }
 }
