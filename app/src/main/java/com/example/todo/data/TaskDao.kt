@@ -19,7 +19,7 @@ interface TaskDao {
     suspend fun getTaskOnce(id: Long): TaskEntity?
 
     @Upsert
-    suspend fun upsertTask(task: TaskEntity)
+    suspend fun upsertTask(task: TaskEntity): Long
 
     @Insert
     suspend fun insertTasks(tasks: List<TaskEntity>)

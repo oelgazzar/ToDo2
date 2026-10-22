@@ -24,7 +24,8 @@ class TaskRepositoryImp @Inject constructor(
     override fun getTask(it: Long): Flow<Task?> = taskDao.getTask(it).map { it?.toDomain() }
 
     override suspend fun upsertTask(task: Task) {
-        taskDao.upsertTask(task.toEntity())
+        val taskId = taskDao.upsertTask(task.toEntity())
+        schedular.schedule(taskId)
     }
 
     override suspend fun insertAll(tasks: List<Task>) {

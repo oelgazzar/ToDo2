@@ -269,7 +269,7 @@ fun QuickAddSheetContent(
                     onAddTask()
                     onDismiss()
                 },
-                enabled = taskDraftState.title.text.isNotBlank(),
+                enabled = !taskDraftState.isEmpty,
             ) {
                 Text("Save")
             }

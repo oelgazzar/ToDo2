@@ -16,12 +16,13 @@ class ReminderReceiver: BroadcastReceiver() {
     lateinit var schedular: ReminderSchedular
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val title = intent?.getStringExtra("title")?:return
-        val content = intent.getStringExtra("content")?:return
+        val taskId = intent?.getLongExtra("taskId", -1L)?:return
+        val title = intent.getStringExtra("title")?:""
+        val content = intent.getStringExtra("content")?:""
         val pending = goAsync()
         CoroutineScope(Job()).launch {
             context?.sendNotification(title, content)
-            schedular.scheduleNext(intent.getLongExtra("taskId", -1))
+            schedular.scheduleNext(taskId)
         }
         pending.finish()
     }
