@@ -4,13 +4,16 @@ package com.example.todo.ui.home
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -52,6 +55,7 @@ import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.FlatListShapes
 import com.example.todo.ui.utils.SectionedListShapes
 import com.example.todo.ui.utils.getHeaderDisplayColor
+import com.example.todo.ui.utils.largeRadius
 import kotlinx.serialization.Serializable
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -203,6 +207,9 @@ fun HomeContent(
     LazyColumn(
         state = lazyListState,
         modifier = modifier
+            .background(CardDefaults.cardColors().containerColor, shape = RoundedCornerShape(
+                largeRadius
+            ))
     ) {
         if (tasks.isEmpty()) {
             // 1. Header (Empty state)
