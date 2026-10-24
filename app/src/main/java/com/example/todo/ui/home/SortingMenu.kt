@@ -17,6 +17,7 @@ fun SortingMenu(
     expanded: Boolean,
     onExpand: () -> Unit,
     onDismiss: () -> Unit,
+    selectedSortType: SortType,
     onSortChanged: (SortType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -41,9 +42,12 @@ fun SortingMenu(
                     onSortChanged(SortType.CUSTOM)
                     onDismiss()
                 },
-                leadingIcon = {
-                    Icon(check, null)
-                }
+                leadingIcon =
+                    {
+                        if (selectedSortType == SortType.CUSTOM) {
+                            Icon(check, null)
+                        }
+                    }
             )
             DropdownMenuItem(
                 text = {
@@ -52,7 +56,13 @@ fun SortingMenu(
                 onClick = {
                     onSortChanged(SortType.DEADLINE)
                     onDismiss()
-                }
+                },
+                leadingIcon =
+                    {
+                        if (selectedSortType == SortType.DEADLINE) {
+                            Icon(check, null)
+                        }
+                    }
             )
             DropdownMenuItem(
                 text = {
@@ -61,7 +71,13 @@ fun SortingMenu(
                 onClick = {
                     onSortChanged(SortType.REMINDER)
                     onDismiss()
-                }
+                },
+                leadingIcon =
+                    {
+                        if (selectedSortType == SortType.REMINDER) {
+                            Icon(check, null)
+                        }
+                    }
             )
             DropdownMenuItem(
                 text = {
@@ -70,7 +86,13 @@ fun SortingMenu(
                 onClick = {
                     onSortChanged(SortType.TITLE)
                     onDismiss()
-                }
+                },
+                leadingIcon =
+                    {
+                        if (selectedSortType == SortType.TITLE) {
+                            Icon(check, null)
+                        }
+                    }
             )
         }
     }

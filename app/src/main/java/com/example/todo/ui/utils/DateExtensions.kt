@@ -1,7 +1,10 @@
 package com.example.todo.ui.utils
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.example.todo.models.Reminder
-import com.example.todo.models.Repeat
 import com.example.todo.models.toLocalDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,11 +31,56 @@ fun LocalDate.toDisplayText(today: LocalDate = LocalDate.now()): String {
     }
 }
 
+fun LocalDate.toDueBucket(today: LocalDate = LocalDate.now()): String {
+    val daysInterval = ChronoUnit.DAYS.between(this, today).toInt()
+
+    return when {
+        daysInterval == -1 -> "Due Tomorrow"
+        daysInterval == 0 -> "Due Today"
+        daysInterval > 1 -> "Overdue"
+        else -> "Due " + this.toFormattedString()
+    }
+}
+
 fun LocalDateTime.toDisplayText(today: LocalDate = LocalDate.now()): String {
     return "${toLocalDate().toDisplayText(today)}, ${toLocalTime().toFormattedString()}"
 }
 
-fun Reminder.toDisplayText(today: LocalDate = LocalDate.now()) = this.toLocalDateTime().toDisplayText(today)
+fun Reminder.toDisplayText(today: LocalDate = LocalDate.now()) =
+    this.toLocalDateTime().toDisplayText(today)
+
+fun LocalDate.toReminderBucket(today: LocalDate = LocalDate.now()): String {
+    val daysInterval = ChronoUnit.DAYS.between(this, today).toInt()
+
+    return when {
+        daysInterval == -1 -> "Tomorrow"
+        daysInterval == 0 -> "Today"
+        daysInterval > 0 -> "Past"
+        else -> this.toFormattedString()
+    }
+}
+
+val LocalDate.isPast: Boolean
+    get() = this.isBefore(LocalDate.now())
+
+val Reminder.isPast: Boolean
+    get() = this.date.isPast
+
+val LocalDate.isToday: Boolean
+    get() = this == LocalDate.now()
+
+val Reminder.isToday: Boolean
+    get() = this.date.isToday
+
+fun LocalDate.getDisplayColor(colorScheme: ColorScheme): Color {
+    return when {
+        this.isToday -> colorScheme.primary
+        this.isPast -> colorScheme.error
+        else -> colorScheme.onSurface
+    }
+}
+
+fun Reminder.getDisplayColor(colorScheme: ColorScheme) = date.getDisplayColor(colorScheme)
 
 fun LocalDate.toFormattedString(): String {
     return this.format(dateFormatter)

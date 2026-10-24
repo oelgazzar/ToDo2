@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import com.example.todo.models.Task
 import com.example.todo.models.toLocalDateTime
 import com.example.todo.ui.repeat.RepeatType
 import com.example.todo.ui.theme.AppTheme
+import com.example.todo.ui.utils.getDisplayColor
 import com.example.todo.ui.utils.toDisplayText
 import com.example.todo.ui.utils.toUi
 import java.time.LocalDate
@@ -41,12 +43,14 @@ fun TaskItem(
     task: Task,
     onTaskClicked: () -> Unit,
     onToggleCompleted: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.shape,
 ) {
     val categoryUi = task.category?.toUi()
 
     Surface(
         color = CardDefaults.cardColors().containerColor,
+        shape = shape,
         modifier = modifier
             .clickable(onClick = onTaskClicked)
     ) {
@@ -117,12 +121,14 @@ fun TaskItem(
                     Icon(
                         target_check,
                         null,
+                        tint = dueDate.getDisplayColor(MaterialTheme.colorScheme),
                         modifier = Modifier
                             .size(18.dp)
                     )
                     Text(
                         text = "Due ${dueDate.toDisplayText()}",
                         style = MaterialTheme.typography.bodyMedium,
+                        color = dueDate.getDisplayColor(MaterialTheme.colorScheme),
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
@@ -138,14 +144,14 @@ fun TaskItem(
                     Icon(
                         schedule,
                         null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = reminder.getDisplayColor(MaterialTheme.colorScheme),
                         modifier = Modifier
                             .size(18.dp)
                     )
                     Text(
                         text = reminder.toLocalDateTime().toDisplayText(),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = reminder.getDisplayColor(MaterialTheme.colorScheme),
                         modifier = Modifier.padding(start = 4.dp)
                     )
                     task.schedule.repeat?.let {
@@ -185,6 +191,7 @@ private fun TaskItemPrev() {
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
+            shape = CardDefaults.shape,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -206,6 +213,7 @@ private fun CompletedTaskItemPrev() {
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
+            shape = CardDefaults.shape,
             modifier = Modifier.fillMaxWidth()
         )
     }

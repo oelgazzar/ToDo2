@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo.data.PreferenceRepository
 import com.example.todo.data.TaskRepository
+import com.example.todo.models.SortType
 import com.example.todo.models.Task
+import com.example.todo.models.TaskSection
+import com.example.todo.models.toTaskSections
 import com.example.todo.ui.components.FilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -20,8 +23,10 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val tasks: List<Task> = emptyList(),
+    val taskSections: List<TaskSection> = emptyList(),
     val taskCount: Int = 0,
     val filter: FilterType = FilterType.ALL,
+    val sort: SortType = SortType.CUSTOM,
     val isLoading: Boolean = true,
     val error: String? = null
 )
@@ -36,28 +41,30 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<HomeUiState> =
-        combine(repository.getAllTasks(), _filter) { tasks, filter ->
+        combine(repository.getAllTasks(), _filter, preferenceRepository.getSortType()) { tasks, filter, sort ->
             HomeUiState(
                 tasks = tasks.applyFilter(filter).sortedBy { it.position },
+                taskSections = tasks.toTaskSections(sort),
                 taskCount = tasks.size,
                 filter = if (tasks.isNotEmpty()) filter else FilterType.ALL,
+                sort = sort,
                 isLoading = false,
                 error = null
             )
         }
-        .catch {
-            emit(
-                HomeUiState(
-                    isLoading = false,
-                    error = it.message
+            .catch {
+                emit(
+                    HomeUiState(
+                        isLoading = false,
+                        error = it.message
+                    )
                 )
+            }
+            .stateIn(
+                initialValue = HomeUiState(isLoading = true),
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000)
             )
-        }
-        .stateIn(
-            initialValue = HomeUiState(isLoading = true),
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000)
-        )
 
     init {
         viewModelScope.launch {
@@ -81,7 +88,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun undoDelete(task: Task) {
-            addTask(task)
+        addTask(task)
     }
 
     fun updateFilter(filter: FilterType) {
@@ -100,6 +107,12 @@ class HomeViewModel @Inject constructor(
     fun saveOrder(tasks: List<Task>) {
         viewModelScope.launch {
             repository.updatePositions(tasks)
+        }
+    }
+
+    fun setSortType(sortType: SortType) {
+        viewModelScope.launch {
+            preferenceRepository.saveSortType(sortType)
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.todo.models.SortType
 import com.example.todo.ui.components.FilterType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,7 +25,18 @@ class PreferenceRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getSortType(): Flow<SortType> {
+        return dataStore.data.map { SortType.valueOf(it[SORT_KEY]?: SortType.CUSTOM.name) }
+    }
+
+    override suspend fun saveSortType(sortType: SortType) {
+        dataStore.edit {
+            it[SORT_KEY] = sortType.name
+        }
+    }
+
     companion object {
         val FILTER_KEY = stringPreferencesKey("filter")
+        val SORT_KEY = stringPreferencesKey("sort")
     }
 }
