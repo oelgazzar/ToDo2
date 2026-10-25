@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Transaction
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -44,4 +45,15 @@ interface TaskDao {
 
     @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM task")
     suspend fun getNextPosition(): Long
+
+    @Transaction
+    @Query("SELECT * FROM task")
+    fun getTasksWithCategory(): Flow<List<TaskWithCategory>>
+
+    @Transaction
+    @Query("SELECT * FROM task where id = :taskId")
+    fun getTaskWithCategory(taskId: Long): Flow<TaskWithCategory?>
+
+    @Query("UPDATE task SET categoryId = :categoryId WHERE id = :taskId")
+    suspend fun updateCategory(taskId: Long, categoryId: Long?)
 }

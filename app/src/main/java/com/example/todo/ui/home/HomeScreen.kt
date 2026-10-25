@@ -6,8 +6,11 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -15,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -28,7 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -44,7 +50,9 @@ import com.example.todo.models.SortType
 import com.example.todo.models.Task
 import com.example.todo.models.TaskSection
 import com.example.todo.models.toTaskSections
+import com.example.todo.models.utils.toColor
 import com.example.todo.ui.components.AddTaskFab
+import com.example.todo.ui.components.ColorDot
 import com.example.todo.ui.components.FilterRow
 import com.example.todo.ui.components.FilterType
 import com.example.todo.ui.home.quickAdd.QuickAddSheet
@@ -179,7 +187,6 @@ fun HomeContent(
     ) { from, to ->
         reorderableList.apply {
             add(to.index - 1, removeAt(from.index - 1))
-            println("from: ${from.index} to: ${to.index}")
         }
         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
     }
@@ -187,7 +194,6 @@ fun HomeContent(
     // Task sections
     val sections =
         if (sortType == SortType.CUSTOM) reorderableList.toTaskSections(sortType) else taskSections
-    println(sections)
     val listItemShapes = remember(sortType) {
         if (sortType in listOf(
                 SortType.CUSTOM,
@@ -207,9 +213,13 @@ fun HomeContent(
     LazyColumn(
         state = lazyListState,
         modifier = modifier
-            .background(CardDefaults.cardColors().containerColor, shape = RoundedCornerShape(
-                largeRadius
-            ))
+            .then(
+                if (sortType == SortType.CUSTOM) Modifier.background(
+                    CardDefaults.cardColors().containerColor, shape = RoundedCornerShape(
+                        largeRadius
+                    )
+                ) else Modifier
+            )
     ) {
         if (tasks.isEmpty()) {
             // 1. Header (Empty state)
@@ -254,15 +264,38 @@ fun HomeContent(
                             shape = listItemShapes.firstItemShape,
                             modifier = Modifier.padding(top = 1.dp) // gap above section
                         ) {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = section.getHeaderDisplayColor(sortType, colorScheme),
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .padding(top = 16.dp)
                                     .fillMaxWidth()
-                            )
+                            ) {
+                                if (sortType == SortType.CATEGORY) {
+                                    val category = section.items.first().category
+                                    category?.icon?.let {
+                                        Icon(
+                                            it.icon,
+                                            null,
+                                            tint = category.color?.toColor() ?: Color.Unspecified
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    } ?: category?.color?.let {
+                                        ColorDot(color = it.toColor())
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+
+                                }
+
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = section.getHeaderDisplayColor(
+                                        sortType,
+                                        colorScheme
+                                    ),
+                                )
+                            }
                         }
                     }
                 }
@@ -280,6 +313,7 @@ fun HomeContent(
                                 task,
                             )
                         },
+                        sortType = sortType,
                         saveOrder = {
                             saveOrder(reorderableList.toList())
                         },

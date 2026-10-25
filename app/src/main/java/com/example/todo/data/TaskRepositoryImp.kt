@@ -18,10 +18,10 @@ class TaskRepositoryImp @Inject constructor(
     private val schedular: ReminderSchedular
 ) : TaskRepository {
     override fun getAllTasks(): Flow<List<Task>> {
-        return taskDao.getAllTasks().map { it.toDomain() }
+        return taskDao.getTasksWithCategory().map { it.toDomain() }
     }
 
-    override fun getTask(it: Long): Flow<Task?> = taskDao.getTask(it).map { it?.toDomain() }
+    override fun getTask(it: Long): Flow<Task?> = taskDao.getTaskWithCategory(it).map { it?.toDomain() }
 
     override suspend fun upsertTask(task: Task) {
         val entity = if (task.id == 0L) { // New task, assign position at the tail
@@ -115,5 +115,9 @@ class TaskRepositoryImp @Inject constructor(
                 taskDao.updatePosition(task.id, index.toLong())
             }
         }
+    }
+
+    override suspend fun updateCategory(taskId: Long, categoryId: Long?) {
+        taskDao.updateCategory(taskId, categoryId)
     }
 }

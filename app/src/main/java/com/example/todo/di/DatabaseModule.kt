@@ -25,4 +25,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun providesTaskDao(database: AppDatabase) = database.taskDao()
+
+    @Singleton
+    @Provides
+    fun providesCategoryDao(database: AppDatabase) = database.categoryDao()
 }

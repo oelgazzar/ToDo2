@@ -27,9 +27,7 @@ class NotificationPermissionState(
         get() = status == PermissionStatus.GRANTED
 
     fun requestPermission() {
-        println("permission requested")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            println("but not really")
             launcher?.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

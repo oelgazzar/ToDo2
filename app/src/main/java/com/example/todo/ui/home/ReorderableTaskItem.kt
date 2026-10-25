@@ -8,11 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import com.example.todo.models.SortType
 import com.example.todo.models.Task
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
@@ -23,6 +25,7 @@ fun LazyItemScope.ReorderableTaskItem(
     taskItem: Task,
     onTaskClicked: () -> Unit,
     onTaskCompletionToggled: () -> Unit,
+    sortType: SortType,
     saveOrder: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = false,
@@ -44,7 +47,8 @@ fun LazyItemScope.ReorderableTaskItem(
             task = taskItem,
             onTaskClicked = onTaskClicked,
             onToggleCompleted = onTaskCompletionToggled,
-            shape = shape,
+            shape = if (isDragging) RectangleShape else shape,
+            sortType = sortType,
             modifier = Modifier
                 .longPressDraggableHandle(
                     enabled = enabled,

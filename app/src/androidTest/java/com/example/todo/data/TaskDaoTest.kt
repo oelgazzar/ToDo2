@@ -3,7 +3,6 @@ package com.example.todo.data
 import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.todo.models.Category
 import junit.framework.TestCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -36,7 +35,6 @@ class TaskDaoTest {
     fun insertTask_readIt_thenDelete() = runTest {
         val task = TaskEntity(
             title = "Test Task",
-            category = Category.WORK,
             position = -1
         )
 
@@ -59,7 +57,6 @@ class TaskDaoTest {
     fun insertTask_readIt_thenUpdate() = runTest {
         val task = TaskEntity(
             title = "Test Task",
-            category = Category.WORK,
             position = -1
         )
 
@@ -88,7 +85,6 @@ class TaskDaoTest {
         val task = TaskEntity(
             id = 324L,
             title = "Test Task",
-            category = Category.WORK,
             position = -1
         )
 

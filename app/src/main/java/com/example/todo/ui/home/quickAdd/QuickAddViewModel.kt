@@ -25,10 +25,6 @@ class QuickAddViewModel @Inject constructor(
 
     private var repeatSubmitted = false
 
-    init {
-        println("QuickAddViewModel init")
-    }
-
     fun reset() {
         _taskDraftState.value = TaskDraftState()
         _repeatFormState.value = RepeatFormState()
@@ -48,9 +44,5 @@ class QuickAddViewModel @Inject constructor(
                 repeatState.value.time
             ))
         }
-    }
-
-    override fun onCleared() {
-        println("QuickAddViewModel onCleared")
     }
 }

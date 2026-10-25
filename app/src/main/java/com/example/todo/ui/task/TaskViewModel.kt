@@ -6,7 +6,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todo.data.CategoryRepository
 import com.example.todo.data.TaskRepository
+import com.example.todo.models.Category
 import com.example.todo.models.Reminder
 import com.example.todo.models.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +23,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -29,25 +30,33 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class TaskViewModel @Inject constructor(
-    private val repository: TaskRepository,
+    private val taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val taskId: Long = checkNotNull(savedStateHandle["taskId"])
     val titleFieldState: TextFieldState = TextFieldState()
     val detailsFieldState: TextFieldState = TextFieldState()
 
-    val currentTask = repository.getTask(taskId)
+    val currentTask = taskRepository.getTask(taskId)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
         )
 
+    val categories = categoryRepository.getAllCategories()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     var autoSaveJob: Job? = null
 
     init {
         viewModelScope.launch {
-            repository.getTask(taskId).filterNotNull().first().let {
+            taskRepository.getTask(taskId).filterNotNull().first().let {
                 titleFieldState.setTextAndPlaceCursorAtEnd(it.title)
                 detailsFieldState.setTextAndPlaceCursorAtEnd(it.details.orEmpty())
             }
@@ -64,7 +73,7 @@ class TaskViewModel @Inject constructor(
                 .drop(1)
                 .debounce(500.milliseconds)
                 .collect { (title, details) ->
-                    repository.updateTaskContent(taskId, title, details)
+                    taskRepository.updateTaskContent(taskId, title, details)
                 }
         }
     }
@@ -72,7 +81,7 @@ class TaskViewModel @Inject constructor(
     // Called on back
     suspend fun saveTask() {
         currentTask.value?.let { task ->
-            repository.upsertTask(
+            taskRepository.upsertTask(
                 task.copy(
                     title = titleFieldState.text.toString(),
                     details = detailsFieldState.text.toString().ifBlank { null }
@@ -86,7 +95,7 @@ class TaskViewModel @Inject constructor(
             title = titleFieldState.text.toString(),
             details = detailsFieldState.text.toString().ifBlank { null }
         )
-        repository.deleteTask(taskId)
+        taskRepository.deleteTask(taskId)
         return task
     }
 
@@ -95,7 +104,7 @@ class TaskViewModel @Inject constructor(
     suspend fun toggleCompleted(): Boolean {
         currentTask.value?.let { task ->
             val isCompleted = task.completed
-            repository.upsertTask(
+            taskRepository.upsertTask(
                 task.copy(
                     completed = !task.completed,
                     // Flush text
@@ -110,19 +119,36 @@ class TaskViewModel @Inject constructor(
 
     fun updateDueDate(dueDate: LocalDate?) {
         viewModelScope.launch {
-            repository.updateDueDate(taskId, dueDate)
+            taskRepository.updateDueDate(taskId, dueDate)
         }
     }
 
     fun updateReminder(reminder: Reminder?) {
         viewModelScope.launch {
-            repository.updateReminder(taskId, reminder)
+            taskRepository.updateReminder(taskId, reminder)
         }
     }
 
     fun removeRepeat() {
         viewModelScope.launch {
-            repository.removeRepeat(taskId)
+            taskRepository.removeRepeat(taskId)
+        }
+    }
+
+    fun onSelectCategory(categoryId: Long?) {
+        viewModelScope.launch {
+            taskRepository.updateCategory(taskId, categoryId)
+        }
+    }
+
+    fun onCreateCategory(name: String) {
+        viewModelScope.launch {
+            val categoryId = categoryRepository.upsertCategory(
+                Category(
+                    name = name,
+                )
+            )
+            onSelectCategory(categoryId)
         }
     }
 }

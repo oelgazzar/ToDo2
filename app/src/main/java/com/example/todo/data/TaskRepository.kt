@@ -5,8 +5,6 @@ import com.example.todo.models.Repeat
 import com.example.todo.models.Task
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 interface TaskRepository {
     fun getAllTasks(): Flow<List<Task>>
@@ -21,4 +19,5 @@ interface TaskRepository {
     suspend fun updateReminder(taskId: Long, reminder: Reminder?)
     suspend fun removeRepeat(taskId: Long)
     suspend fun updatePositions(tasks: List<Task>)
+    suspend fun updateCategory(taskId: Long, categoryId: Long?)
 }

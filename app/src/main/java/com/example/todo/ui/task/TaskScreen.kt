@@ -29,20 +29,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.test.category
 import com.example.test.close
 import com.example.test.menu_open
 import com.example.test.repeat
 import com.example.test.schedule
 import com.example.test.target_check
+import com.example.todo.models.Category
 import com.example.todo.models.Reminder
 import com.example.todo.models.Schedule
 import com.example.todo.models.Task
+import com.example.todo.models.utils.toColor
+import com.example.todo.ui.components.ColorDot
 import com.example.todo.ui.components.ConfirmDeleteDialog
 import com.example.todo.ui.components.DatePickerDialog
 import com.example.todo.ui.components.FieldChip
@@ -69,6 +74,7 @@ fun TaskScreen(
     val coroutineScope = rememberCoroutineScope()
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     val currentTask by viewModel.currentTask.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     val taskActionViewModel: TaskActionViewModel =
         hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
 
@@ -111,6 +117,9 @@ fun TaskScreen(
             onReminderChanged = viewModel::updateReminder,
             navigateToRepeatForm = navigateToRepeatForm,
             onRepeatRemoved = viewModel::removeRepeat,
+            categories = categories,
+            onSelectCategory = viewModel::onSelectCategory,
+            onCreateCategory = viewModel::onCreateCategory,
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
@@ -146,10 +155,14 @@ fun TaskScreenContent(
     onReminderChanged: (Reminder?) -> Unit,
     onRepeatRemoved: () -> Unit,
     navigateToRepeatForm: (Reminder?) -> Unit,
+    categories: List<Category>,
+    onSelectCategory: (Long?) -> Unit,
+    onCreateCategory: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showReminderDialog by remember { mutableStateOf(false) }
+    var showCategorySheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.padding(vertical = 16.dp)
@@ -249,6 +262,7 @@ fun TaskScreenContent(
             }
         }
 
+
         // --------------------------------- Repeat -----------------------//
         if (currentTask?.schedule?.repeat != null) {
             Row(
@@ -273,6 +287,41 @@ fun TaskScreenContent(
                     onDismiss = { onRepeatRemoved() }
                 )
             }
+        }
+
+        // --------------------------------- Category -----------------------//
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .clickable(
+                    onClick = { showCategorySheet = true }
+                )
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+            Icon(
+                category,
+                null,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
+            currentTask?.category?.let { c ->
+                FieldChip(
+                    label = currentTask.category.name,
+                    onClick = { showCategorySheet = true },
+                    isDismissible = true,
+                    onDismiss = { onSelectCategory(null) },
+                    iconContent = {
+                        c.icon?.let {
+                            Icon(c.icon.icon, null, tint = c.color?.toColor() ?: Color.Unspecified)
+                        } ?: c.color?.let {
+                            ColorDot(
+                                c.color.toColor()
+                            )
+                        }
+                    }
+                )
+            } ?: Text("Add category")
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -307,6 +356,16 @@ fun TaskScreenContent(
         )
     }
 
+    if (showCategorySheet) {
+        CategorySheet(
+            categories = categories,
+            selectedId = currentTask?.category?.id,
+            onSelect = onSelectCategory,
+            onCreate = onCreateCategory,
+            onDismiss = { showCategorySheet = false}
+        )
+    }
+
 }
 
 @Preview
@@ -326,6 +385,9 @@ private fun TaskScreenContentPrev() {
             onReminderChanged = {},
             navigateToRepeatForm = {},
             onRepeatRemoved = {},
+            categories = listOf(),
+            onSelectCategory = {},
+            onCreateCategory = {},
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)

@@ -94,6 +94,22 @@ fun SortingMenu(
                         }
                     }
             )
+
+            DropdownMenuItem(
+                text = {
+                    Text("Category")
+                },
+                onClick = {
+                    onSortChanged(SortType.CATEGORY)
+                    onDismiss()
+                },
+                leadingIcon =
+                    {
+                        if (selectedSortType == SortType.CATEGORY) {
+                            Icon(check, null)
+                        }
+                    }
+            )
         }
     }
 }

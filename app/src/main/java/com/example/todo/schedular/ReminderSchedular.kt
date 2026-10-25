@@ -29,7 +29,6 @@ class ReminderSchedular @Inject constructor(
         val task = taskDao.getTaskOnce(taskId) ?: return
         val reminder = task.schedule.reminder
         reminder ?: return
-        println("Will schedule reminder for ${reminder.toLocalDateTime()}")
 
         val time = reminder.time ?: LocalTime.now()
             .takeIf {

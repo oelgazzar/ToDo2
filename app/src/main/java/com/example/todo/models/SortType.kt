@@ -4,5 +4,6 @@ enum class SortType {
     DEADLINE,
     REMINDER,
     CUSTOM,
-    TITLE
+    TITLE,
+    CATEGORY
 }

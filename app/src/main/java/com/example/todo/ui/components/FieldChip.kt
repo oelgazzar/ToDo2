@@ -22,7 +22,8 @@ fun FieldChip(
     modifier: Modifier = Modifier,
     isDismissible: Boolean = true,
     onDismiss: () -> Unit = {},
-    icon: ImageVector? = null
+    icon: ImageVector? = null,
+    iconContent: @Composable () -> Unit = {}
 ) {
     InputChip(
         false,
@@ -37,7 +38,7 @@ fun FieldChip(
         leadingIcon = {
             icon?.let {
                 Icon(icon, null)
-            }
+            }?: iconContent()
         },
         trailingIcon = {
             if (isDismissible) {

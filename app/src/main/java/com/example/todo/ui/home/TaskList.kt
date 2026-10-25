@@ -91,6 +91,7 @@ fun TaskList(
                                     taskItem,
                                 )
                             },
+                            sortType = sortType,
                             saveOrder = {
                                 saveOrder(reorderableList.toList())
                             },
@@ -105,6 +106,7 @@ fun TaskList(
                                     taskItem,
                                 )
                             },
+                            sortType = sortType,
                             modifier = Modifier
                         )
                     }

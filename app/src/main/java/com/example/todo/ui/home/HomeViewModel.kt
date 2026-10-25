@@ -44,7 +44,7 @@ class HomeViewModel @Inject constructor(
         combine(repository.getAllTasks(), _filter, preferenceRepository.getSortType()) { tasks, filter, sort ->
             HomeUiState(
                 tasks = tasks.applyFilter(filter).sortedBy { it.position },
-                taskSections = tasks.toTaskSections(sort),
+                taskSections = tasks.applyFilter(filter).toTaskSections(sort),
                 taskCount = tasks.size,
                 filter = if (tasks.isNotEmpty()) filter else FilterType.ALL,
                 sort = sort,

@@ -34,11 +34,13 @@ fun List<Task>.toTaskSections(sortType: SortType): List<TaskSection> {
                 }
             }.map { (dueBucket, tasks) ->
                 TaskSection(
-                    header = dueBucket?:"No deadline",
+                    header = dueBucket,
                     items = tasks
                 )
-            }.sortedBy { it.items.first().schedule.dueDate?: LocalDate.MAX }
-
+            }.sortedWith(compareBy(nullsLast(), {it.items.first().schedule.dueDate}))
+                .map { section ->
+                    section.header?.let { section }?:section.copy(header = "No deadline")
+                }
         }
 
         SortType.REMINDER -> {
@@ -51,11 +53,26 @@ fun List<Task>.toTaskSections(sortType: SortType): List<TaskSection> {
                 }
             }.map { (reminderBucket, tasks) ->
                 TaskSection(
-                    header = reminderBucket?:"No reminders",
+                    header = reminderBucket,
                     items = tasks
                 )
-            }.sortedBy { it.items.first().schedule.reminder?.date?: LocalDate.MAX }
+            }.sortedWith(compareBy(nullsLast(), {it.items.first().schedule.reminder?.date}))
+                .map { section ->
+                    section.header?.let { section }?:section.copy(header = "No reminders")
+                }
+        }
 
+        SortType.CATEGORY -> {
+            this.groupBy { it.category?.name }
+                .map { (category, tasks) ->
+                    TaskSection(
+                        header = category,
+                        items = tasks
+                    )
+                }.sortedWith(compareBy(nullsLast(), { it.header }))
+                .map { section ->
+                    section.header?.let { section }?:section.copy(header = "No category")
+                }
         }
     }
 }

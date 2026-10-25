@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextDecoration
@@ -28,13 +29,16 @@ import com.example.test.target_check
 import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
 import com.example.todo.models.Schedule
+import com.example.todo.models.SortType
 import com.example.todo.models.Task
 import com.example.todo.models.toLocalDateTime
+import com.example.todo.models.utils.toColor
+import com.example.todo.ui.components.ColorDot
+import com.example.todo.ui.components.FieldChip
 import com.example.todo.ui.repeat.RepeatType
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.getDisplayColor
 import com.example.todo.ui.utils.toDisplayText
-import com.example.todo.ui.utils.toUi
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -43,20 +47,18 @@ fun TaskItem(
     task: Task,
     onTaskClicked: () -> Unit,
     onToggleCompleted: () -> Unit,
+    sortType: SortType,
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.shape,
 ) {
-    val categoryUi = task.category?.toUi()
-
     Surface(
         color = CardDefaults.cardColors().containerColor,
         shape = shape,
-        modifier = modifier
-            .clickable(onClick = onTaskClicked)
+        modifier = modifier.clickable(onClick = onTaskClicked)
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth()
         ) {
             Row(
@@ -69,17 +71,16 @@ fun TaskItem(
                     modifier = Modifier
                         .size(24.dp)
                         .clickable(
-                            onClick = { onToggleCompleted() }
-                        )
+                            onClick = { onToggleCompleted() })
                         .testTag("task_completed_checkbox")
                 )
 
                 Text(
                     text = task.title,
                     textDecoration = if (task.completed) TextDecoration.LineThrough else null,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp)
                 )
+
             }
 
             task.details?.ifBlank { null }?.let { details ->
@@ -90,24 +91,28 @@ fun TaskItem(
                         .padding(start = 40.dp)
                 ) {
                     Text(
-                        details,
-                        style = MaterialTheme.typography.bodyMedium
+                        details, style = MaterialTheme.typography.bodyMedium
                     )
-                    //                categoryUi?.icon?.let {
-                    //                    Icon(
-                    //                        it,
-                    //                        null,
-                    //                        tint = categoryUi.color,
-                    //                        modifier = Modifier.size(15.dp)
-                    //                            .padding(end = 4.dp)
-                    //                    )
-                    //                }
-                    //
-                    //                Text(
-                    //                    text = category.name,
-                    //                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    //                    style = MaterialTheme.typography.labelMedium,
-                    //                )
+                }
+            }
+
+            if (sortType != SortType.CATEGORY) {
+                task.category?.let { c ->
+                    FieldChip(
+                        label = c.name, onClick = {}, isDismissible = false, iconContent = {
+                            c.icon?.let {
+                                Icon(
+                                    c.icon.icon,
+                                    null,
+                                    tint = c.color?.toColor() ?: Color.Unspecified
+                                )
+                            } ?: c.color?.let {
+                                ColorDot(
+                                    c.color.toColor()
+                                )
+                            }
+                        }, modifier = Modifier.padding(start = 40.dp)
+                    )
                 }
             }
 
@@ -122,8 +127,7 @@ fun TaskItem(
                         target_check,
                         null,
                         tint = dueDate.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier
-                            .size(18.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = "Due ${dueDate.toDisplayText()}",
@@ -145,8 +149,7 @@ fun TaskItem(
                         schedule,
                         null,
                         tint = reminder.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier
-                            .size(18.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = reminder.toLocalDateTime().toDisplayText(),
@@ -156,7 +159,8 @@ fun TaskItem(
                     )
                     task.schedule.repeat?.let {
                         Icon(
-                            repeat, null,
+                            repeat,
+                            null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .padding(start = 4.dp)
@@ -179,11 +183,8 @@ private fun TaskItemPrev() {
                 title = "Task 1",
                 schedule = Schedule(
                     dueDate = LocalDate.now(),
-                    reminder = Reminder
-                        (
-                        LocalDate.now()
-                            .plusDays(1),
-                        LocalTime.of(9, 25)
+                    reminder = Reminder(
+                        LocalDate.now().plusDays(1), LocalTime.of(9, 25)
                     ),
                     repeat = Repeat(RepeatType.Day),
                 ),
@@ -192,6 +193,7 @@ private fun TaskItemPrev() {
             onTaskClicked = {},
             onToggleCompleted = {},
             shape = CardDefaults.shape,
+            sortType = SortType.CATEGORY,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -203,17 +205,14 @@ private fun CompletedTaskItemPrev() {
     AppTheme {
         TaskItem(
             task = Task(
-                title = "Task 1",
-                details = "First task",
-                completed = true,
-                schedule = Schedule(
+                title = "Task 1", details = "First task", completed = true, schedule = Schedule(
                     dueDate = LocalDate.now()
-                ),
-                position = -1
+                ), position = -1
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
             shape = CardDefaults.shape,
+            sortType = SortType.CATEGORY,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -223,9 +222,7 @@ private fun CompletedTaskItemPrev() {
 @Composable
 private fun Test() {
     RadioButton(
-        selected = true,
-        onClick = { },
-        modifier = Modifier.size(20.dp)
+        selected = true, onClick = { }, modifier = Modifier.size(20.dp)
     )
 }
 

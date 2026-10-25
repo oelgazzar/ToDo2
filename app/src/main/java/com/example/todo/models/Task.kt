@@ -15,12 +15,3 @@ data class Task(
     val isRepeatable: Boolean
         get() = schedule.repeat != null
 }
-
-enum class Category {
-    WORK,
-    PERSONAL,
-    SHOPPING,
-    HEALTH,
-    STUDY,
-    OTHER
-}
