@@ -11,7 +11,7 @@ import com.example.todo.models.Schedule
 import com.example.todo.models.Task
 
 @Stable
-class TaskDraftState(
+class TaskEditorState(
     val title: TextFieldState = TextFieldState(),
     val details: TextFieldState = TextFieldState(),
     reminder: Reminder? = null,
@@ -28,6 +28,7 @@ class TaskDraftState(
 
     var repeat: Repeat? by mutableStateOf(repeat)
         private set
+    var starred by mutableStateOf(false)
 
     fun updateReminder(reminder: Reminder?) {
         this.reminder = reminder
@@ -36,14 +37,19 @@ class TaskDraftState(
     fun updateRepeat(repeat: Repeat?) {
         this.repeat = repeat
     }
-}
 
-fun TaskDraftState.toTask() = Task(
-    title = title.text.toString(),
-    details = details.text.toString().takeIf { it.isNotBlank() },
-    schedule = Schedule(
-        reminder = reminder,
-        repeat = repeat
-    ),
-    position = -1,
-)
+    fun toggleStarred() {
+        this.starred = !starred
+    }
+
+    fun toTask() = Task(
+        title = title.text.toString(),
+        details = details.text.toString().takeIf { it.isNotBlank() },
+        schedule = Schedule(
+            reminder = reminder,
+            repeat = repeat
+        ),
+        position = -1,
+        starred = starred
+    )
+}

@@ -3,7 +3,6 @@ package com.example.todo.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -34,7 +34,6 @@ import com.example.test.schedule
 import com.example.todo.models.Reminder
 import com.example.todo.ui.theme.AppTheme
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,7 +45,7 @@ fun ReminderDialog(
     showRepeatForm: (Reminder?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val datePickerState = rememberDatePickerState(initialReminder?.date?: LocalDate.now())
+    val datePickerState = rememberDatePickerState(initialReminder?.date ?: LocalDate.now())
     var timeReminder by remember { mutableStateOf(initialReminder?.time) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -57,8 +56,8 @@ fun ReminderDialog(
     ) {
         Card(
             modifier = modifier
-                .requiredWidth(360.dp)
                 .padding(horizontal = 8.dp, vertical = 64.dp)
+                .requiredWidth(360.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -66,6 +65,9 @@ fun ReminderDialog(
             ) {
                 DatePicker(
                     state = datePickerState,
+                    title = null,
+                    headline = null,
+                    showModeToggle = false
                 )
                 HorizontalDivider()
                 Row(
@@ -74,7 +76,7 @@ fun ReminderDialog(
                             onClick = { showTimePicker = true }
                         )
                         .padding(16.dp)
-                        .fillMaxWidth()
+//                        .fillMaxWidth()
                 ) {
                     Icon(
                         schedule, null,
@@ -86,15 +88,17 @@ fun ReminderDialog(
                 Row(
                     modifier = Modifier
                         .clickable(
-                            onClick = { showRepeatForm(
-                                Reminder(
-                                    datePickerState.getSelectedDate()?: LocalDate.now(),
-                                    timeReminder
+                            onClick = {
+                                showRepeatForm(
+                                    Reminder(
+                                        datePickerState.getSelectedDate() ?: LocalDate.now(),
+                                        timeReminder
+                                    )
                                 )
-                            )}
+                            }
                         )
                         .padding(16.dp)
-                        .fillMaxWidth()
+//                        .fillMaxWidth()
                 ) {
                     Icon(
                         repeat, null,
@@ -117,7 +121,7 @@ fun ReminderDialog(
                         onClick = {
                             onConfirm(
                                 Reminder(
-                                    datePickerState.getSelectedDate()?: LocalDate.now(),
+                                    datePickerState.getSelectedDate() ?: LocalDate.now(),
                                     timeReminder
                                 )
                             )
@@ -132,8 +136,10 @@ fun ReminderDialog(
 
     if (showTimePicker) {
         TimePickerDialog(
-            initialTime = LocalTime.of(initialReminder?.time?.hour?: LocalTime.now().hour,
-                initialReminder?.time?.minute?: LocalTime.now().minute),
+            initialTime = LocalTime.of(
+                initialReminder?.time?.hour ?: LocalTime.now().hour,
+                initialReminder?.time?.minute ?: LocalTime.now().minute
+            ),
             onConfirm = {
                 timeReminder = LocalTime.of(it.hour, it.minute)
                 showTimePicker = false

@@ -19,6 +19,7 @@ fun TaskWithCategory.toDomain() = Task(
     details = task.details,
     completed = task.completed,
     completedAt = task.completedAt,
+    starred = task.starred,
     schedule = task.schedule,
     position = task.position,
     category = category?.toDomain()

@@ -21,4 +21,5 @@ interface TaskRepository {
     suspend fun updatePositions(tasks: List<Task>)
     suspend fun updateCategory(taskId: Long, categoryId: Long?)
     suspend fun deleteAllCompleted()
+    suspend fun toggleStarred(id: Long)
 }

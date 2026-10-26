@@ -1,7 +1,6 @@
 package com.example.todo.ui.shared
 
 import androidx.lifecycle.ViewModel
-import com.example.todo.data.TaskRepository
 import com.example.todo.models.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -17,7 +16,7 @@ sealed interface TaskAction {
 class TaskActionViewModel @Inject constructor(
 ): ViewModel() {
     private val _taskAction = Channel<TaskAction>(capacity = 1)
-    val taskAction = _taskAction.receiveAsFlow()
+    val taskActions = _taskAction.receiveAsFlow()
 
     fun publishDeletedTask(task: Task) {
         _taskAction.trySend(TaskAction.DeleteTask(task))

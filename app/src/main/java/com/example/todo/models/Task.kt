@@ -1,5 +1,6 @@
 package com.example.todo.models
 
+import android.text.BoringLayout
 import java.time.LocalDate
 
 data class Task(
@@ -9,6 +10,7 @@ data class Task(
     val category: Category? = null,
     val completed: Boolean = false,
     val completedAt: LocalDate? = null,
+    val starred: Boolean = false,
     val createdAt: LocalDate = LocalDate.now(),
     val schedule: Schedule = Schedule(),
     val position: Long

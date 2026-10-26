@@ -6,7 +6,6 @@ import com.example.todo.data.PreferenceRepository
 import com.example.todo.data.TaskRepository
 import com.example.todo.models.SortType
 import com.example.todo.models.Task
-import com.example.todo.models.TaskSection
 import com.example.todo.models.toTaskSections
 import com.example.todo.ui.components.FilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,16 +20,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class HomeUiState(
-    val tasks: List<Task> = emptyList(),
-    val taskSections: List<TaskSection> = emptyList(),
-    val taskCount: Int = 0,
-    val filter: FilterType = FilterType.ALL,
-    val sort: SortType = SortType.CUSTOM,
-    val isLoading: Boolean = true,
-    val error: String? = null
-)
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: TaskRepository,
@@ -43,10 +32,9 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> =
         combine(repository.getAllTasks(), _filter, preferenceRepository.getSortType()) { tasks, filter, sort ->
             HomeUiState(
-                tasks = tasks.applyFilter(filter).sortedBy { it.position },
-                taskSections = tasks.applyFilter(filter).toTaskSections(sort),
-                taskCount = tasks.size,
-                filter = if (tasks.isNotEmpty()) filter else FilterType.ALL,
+                taskSections = tasks.applyFilter(filter).sortedBy { it.position }.toTaskSections(sort),
+                noTasks = tasks.isEmpty(),
+                filter = filter,
                 sort = sort,
                 isLoading = false,
                 error = null
@@ -81,15 +69,29 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun undoDelete(task: Task) {
+        addTask(task)
+    }
+
     fun toggleCompleteTask(taskId: Long) {
         viewModelScope.launch {
             repository.toggleCompleted(taskId)
         }
     }
 
-    fun undoDelete(task: Task) {
-        addTask(task)
+
+    fun onStarTask(task: Task) {
+        viewModelScope.launch {
+            repository.toggleStarred(task.id)
+        }
     }
+
+    fun deleteAllCompleted() {
+        viewModelScope.launch {
+            repository.deleteAllCompleted()
+        }
+    }
+
 
     fun updateFilter(filter: FilterType) {
         _filter.value = filter
@@ -104,21 +106,15 @@ class HomeViewModel @Inject constructor(
         FilterType.ACTIVE -> filter { !it.isCompleted }
     }
 
-    fun saveOrder(tasks: List<Task>) {
-        viewModelScope.launch {
-            repository.updatePositions(tasks)
-        }
-    }
-
     fun setSortType(sortType: SortType) {
         viewModelScope.launch {
             preferenceRepository.saveSortType(sortType)
         }
     }
 
-    fun deleteAllCompleted() {
+    fun saveOrder(tasks: List<Task>) {
         viewModelScope.launch {
-            repository.deleteAllCompleted()
+            repository.updatePositions(tasks)
         }
     }
 }

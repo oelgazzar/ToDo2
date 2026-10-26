@@ -20,24 +20,24 @@ class QuickAddViewModel @Inject constructor(
     private val _repeatFormState = MutableStateFlow(RepeatFormState())
     val repeatState = _repeatFormState.asStateFlow()
 
-    private val _taskDraftState = MutableStateFlow(TaskDraftState())
-    val taskDraftState = _taskDraftState.asStateFlow()
+    private val _taskEditorState = MutableStateFlow(TaskEditorState())
+    val taskEditorState = _taskEditorState.asStateFlow()
 
     private var repeatSubmitted = false
 
     fun reset() {
-        _taskDraftState.value = TaskDraftState()
+        _taskEditorState.value = TaskEditorState()
         _repeatFormState.value = RepeatFormState()
     }
 
     fun addTask() {
         viewModelScope.launch {
-            repository.upsertTask(_taskDraftState.value.toTask())
+            repository.upsertTask(_taskEditorState.value.toTask())
         }
     }
 
     fun onRepeatSubmitted() {
-        _taskDraftState.value.apply {
+        _taskEditorState.value.apply {
             updateRepeat(repeatState.value.toRepeat())
             updateReminder(Reminder(
                 repeatState.value.startDate?: LocalDate.now(),

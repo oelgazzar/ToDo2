@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -25,6 +26,8 @@ import com.example.test.check
 import com.example.test.radio_button_unchecked
 import com.example.test.repeat
 import com.example.test.schedule
+import com.example.test.star
+import com.example.test.star_filled
 import com.example.test.target_check
 import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
@@ -47,6 +50,7 @@ fun TaskItem(
     task: Task,
     onTaskClicked: () -> Unit,
     onToggleCompleted: () -> Unit,
+    onStar: () -> Unit,
     sortType: SortType,
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.shape,
@@ -56,119 +60,129 @@ fun TaskItem(
         shape = shape,
         modifier = modifier.clickable(onClick = onTaskClicked)
     ) {
-        Column(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                modifier = Modifier
+                    .weight(1f)
             ) {
-                Icon(
-                    if (task.isCompleted) check else radio_button_unchecked,
-                    null,
-                    tint = if (task.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(
-                            onClick = { onToggleCompleted() })
-                        .testTag("task_completed_checkbox")
-                )
-
-                Text(
-                    text = task.title,
-                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-
-            }
-
-            task.details?.ifBlank { null }?.let { details ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .padding(start = 40.dp)
-                ) {
-                    Text(
-                        details, style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-
-            if (sortType != SortType.CATEGORY) {
-                task.category?.let { c ->
-                    FieldChip(
-                        label = c.name, onClick = {}, isDismissible = false, iconContent = {
-                            c.icon?.let {
-                                Icon(
-                                    c.icon.icon,
-                                    null,
-                                    tint = c.color?.toColor() ?: Color.Unspecified
-                                )
-                            } ?: c.color?.let {
-                                ColorDot(
-                                    c.color.toColor()
-                                )
-                            }
-                        }, modifier = Modifier.padding(start = 40.dp)
-                    )
-                }
-            }
-
-            task.schedule.dueDate?.let { dueDate ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .padding(start = 40.dp)
                 ) {
                     Icon(
-                        target_check,
+                        if (task.isCompleted) check else radio_button_unchecked,
                         null,
-                        tint = dueDate.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier.size(18.dp)
+                        tint = if (task.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable(
+                                onClick = { onToggleCompleted() })
+                            .testTag("task_completed_checkbox")
                     )
+
                     Text(
-                        text = "Due ${dueDate.toDisplayText()}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = dueDate.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier.padding(start = 4.dp)
+                        text = task.title,
+                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
+                        modifier = Modifier.padding(start = 16.dp)
                     )
+
                 }
-            }
 
-            task.schedule.reminder?.let { reminder ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .padding(start = 40.dp)
-                ) {
-                    Icon(
-                        schedule,
-                        null,
-                        tint = reminder.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Text(
-                        text = reminder.toLocalDateTime().toDisplayText(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = reminder.getDisplayColor(MaterialTheme.colorScheme),
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                    task.schedule.repeat?.let {
-                        Icon(
-                            repeat,
-                            null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .size(16.dp)
-
+                task.details?.ifBlank { null }?.let { details ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .padding(start = 40.dp)
+                    ) {
+                        Text(
+                            details, style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
+
+                if (sortType != SortType.CATEGORY) {
+                    task.category?.let { c ->
+                        FieldChip(
+                            label = c.name, onClick = {}, isDismissible = false, iconContent = {
+                                c.icon?.let {
+                                    Icon(
+                                        c.icon.icon,
+                                        null,
+                                        tint = c.color?.toColor() ?: Color.Unspecified
+                                    )
+                                } ?: c.color?.let {
+                                    ColorDot(
+                                        c.color.toColor()
+                                    )
+                                }
+                            }, modifier = Modifier.padding(start = 40.dp)
+                        )
+                    }
+                }
+
+                task.schedule.dueDate?.let { dueDate ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .padding(start = 40.dp)
+                    ) {
+                        Icon(
+                            target_check,
+                            null,
+                            tint = dueDate.getDisplayColor(MaterialTheme.colorScheme),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Due ${dueDate.toDisplayText()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = dueDate.getDisplayColor(MaterialTheme.colorScheme),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+
+                task.schedule.reminder?.let { reminder ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .padding(start = 40.dp)
+                    ) {
+                        Icon(
+                            schedule,
+                            null,
+                            tint = reminder.getDisplayColor(MaterialTheme.colorScheme),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = reminder.toLocalDateTime().toDisplayText(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = reminder.getDisplayColor(MaterialTheme.colorScheme),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                        task.schedule.repeat?.let {
+                            Icon(
+                                repeat,
+                                null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .size(16.dp)
+
+                            )
+                        }
+                    }
+                }
+            }
+
+            IconButton(onClick = onStar) {
+                Icon(if (task.starred) star_filled else star, null)
             }
         }
     }
@@ -192,6 +206,7 @@ private fun TaskItemPrev() {
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
+            onStar = {},
             shape = CardDefaults.shape,
             sortType = SortType.CATEGORY,
             modifier = Modifier.fillMaxWidth()
@@ -207,10 +222,13 @@ private fun CompletedTaskItemPrev() {
             task = Task(
                 title = "Task 1", details = "First task", completed = true, schedule = Schedule(
                     dueDate = LocalDate.now()
-                ), position = -1
+                ),
+                position = -1,
+                starred = true
             ),
             onTaskClicked = {},
             onToggleCompleted = {},
+            onStar = {},
             shape = CardDefaults.shape,
             sortType = SortType.CATEGORY,
             modifier = Modifier.fillMaxWidth()

@@ -3,63 +3,48 @@
 package com.example.todo.ui.home
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.todo.data.sampleTodos
 import com.example.todo.models.Reminder
 import com.example.todo.models.SortType
 import com.example.todo.models.Task
 import com.example.todo.models.TaskSection
 import com.example.todo.models.toTaskSections
-import com.example.todo.models.utils.toColor
 import com.example.todo.ui.components.AddTaskFab
-import com.example.todo.ui.components.ColorDot
-import com.example.todo.ui.components.FilterRow
 import com.example.todo.ui.components.FilterType
 import com.example.todo.ui.home.quickAdd.QuickAddSheet
 import com.example.todo.ui.home.quickAdd.QuickAddViewModel
-import com.example.todo.ui.home.quickAdd.TaskDraftState
+import com.example.todo.ui.home.quickAdd.TaskEditorState
 import com.example.todo.ui.shared.TaskActionViewModel
-import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.FlatListShapes
 import com.example.todo.ui.utils.SectionedListShapes
 import com.example.todo.ui.utils.getHeaderDisplayColor
@@ -75,41 +60,43 @@ fun HomeScreen(
     navigateToTaskScreen: (Long) -> Unit,
     navigateToRepeatFormScreen: (Reminder?) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    quickAddViewModel: QuickAddViewModel = hiltViewModel()
+    quickAddViewModel: QuickAddViewModel = hiltViewModel(),
+    taskActionViewModel: TaskActionViewModel = hiltViewModel()
 ) {
-    // For published edit actions e.g. delete and complete
-    val taskActionViewModel: TaskActionViewModel =
-        hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
-
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val taskDraftState by quickAddViewModel.taskDraftState.collectAsStateWithLifecycle()
-    val taskAction by taskActionViewModel.taskAction.collectAsStateWithLifecycle(null)
+    val taskEditorState by quickAddViewModel.taskEditorState.collectAsStateWithLifecycle()
+    val taskActions by taskActionViewModel.taskActions.collectAsStateWithLifecycle(null)
 
+    // a flag set when launch repeat form screen to  remember to show quick add sheet on return
     var shouldShowQuickAddSheet by rememberSaveable { mutableStateOf(false) }
     var showQuickAddSheet by rememberSaveable { mutableStateOf(false) }
+
     val snackBarState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
 
     // Show form (sheet) when return from repeat Screen
     LaunchedEffect(Unit) {
         showQuickAddSheet = shouldShowQuickAddSheet
+        shouldShowQuickAddSheet = false
     }
 
     TaskActionEffect(
-        taskAction,
+        taskActions,
         snackBarState,
         onUndoDelete = homeViewModel::undoDelete,
         onUndoComplete = homeViewModel::toggleCompleteTask
     )
 
     Scaffold(
-        topBar = { HomeAppBar() },
+        topBar = { HomeAppBar(scrollBehavior = scrollBehavior) },
         floatingActionButton = {
             AddTaskFab(onClick = { showQuickAddSheet = true })
         },
         snackbarHost = {
             SnackbarHost(snackBarState)
-        }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
@@ -119,21 +106,21 @@ fun HomeScreen(
             else -> {
                 HomeContent(
                     // Tasks and filter
-                    tasks = uiState.tasks,
-                    totalTaskCount = uiState.taskCount,
+                    noTasks = uiState.noTasks,
                     selectedFilter = uiState.filter,
-                    onFilterChanged = homeViewModel::updateFilter,
+                    onSelectFilter = homeViewModel::updateFilter,
                     onDeleteAllCompletedTasks = homeViewModel::deleteAllCompleted,
+                    onStar = homeViewModel::onStarTask,
                     // Sorting
                     taskSections = uiState.taskSections,
                     saveOrder = homeViewModel::saveOrder,
-                    sortType = uiState.sort,
-                    setSortType = homeViewModel::setSortType,
+                    selectedSortType = uiState.sort,
+                    onSelectSortType = homeViewModel::setSortType,
                     // Task actions
                     onTaskClicked = { navigateToTaskScreen(it.id) },
                     onTaskCompletionToggled = { task -> homeViewModel.toggleCompleteTask(task.id) },
                     // Quick add
-                    taskDraftState = taskDraftState,
+                    taskEditorState = taskEditorState,
                     onAddTask = quickAddViewModel::addTask,
                     showQuickAddSheet = showQuickAddSheet,
                     onDismissQuickAddSheet = {
@@ -156,17 +143,17 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     // Tasks and filter
-    tasks: List<Task>,
-    totalTaskCount: Int,
+    taskSections: List<TaskSection>,
+    noTasks: Boolean,
     selectedFilter: FilterType,
-    onFilterChanged: (FilterType) -> Unit,
+    onSelectFilter: (FilterType) -> Unit,
     onDeleteAllCompletedTasks: () -> Unit,
+    onStar: (Task) -> Unit,
 
     // Sorting
-    taskSections: List<TaskSection> = listOf(),
     saveOrder: (List<Task>) -> Unit,
-    sortType: SortType,
-    setSortType: (SortType) -> Unit,
+    selectedSortType: SortType,
+    onSelectSortType: (SortType) -> Unit,
 
     // Task actions
     onTaskClicked: (Task) -> Unit,
@@ -174,7 +161,7 @@ fun HomeContent(
     // Quick add
     showQuickAddSheet: Boolean,
     onDismissQuickAddSheet: () -> Unit,
-    taskDraftState: TaskDraftState,
+    taskEditorState: TaskEditorState,
     navigateToRepeatForm: (Reminder?) -> Unit,
     onAddTask: () -> Unit,
 
@@ -183,7 +170,7 @@ fun HomeContent(
     val lazyListState = rememberLazyListState()
     // Reorder
     val hapticFeedback = LocalHapticFeedback.current
-    val reorderableList = remember(tasks) { tasks.toMutableStateList() }
+    val reorderableList = remember(taskSections) { taskSections.firstOrNull()?.items?.toMutableStateList()?: mutableStateListOf() }
     val reorderableLazyListState = rememberReorderableLazyListState(
         lazyListState, scrollThresholdPadding = PaddingValues(20.dp)
     ) { from, to ->
@@ -195,9 +182,9 @@ fun HomeContent(
 
     // Task sections
     val sections =
-        if (sortType == SortType.CUSTOM) reorderableList.toTaskSections(sortType) else taskSections
-    val listItemShapes = remember(sortType) {
-        if (sortType in listOf(
+        if (selectedSortType == SortType.CUSTOM) reorderableList.toTaskSections(selectedSortType) else taskSections
+    val listItemShapes = remember(selectedSortType) {
+        if (selectedSortType in listOf(
                 SortType.CUSTOM,
                 SortType.TITLE
             )
@@ -207,8 +194,8 @@ fun HomeContent(
     val colorScheme = MaterialTheme.colorScheme
     var itemAnimationsEnabled by remember { mutableStateOf(false) }
 
-    LaunchedEffect(sortType) {
-        itemAnimationsEnabled = sortType == SortType.CUSTOM
+    LaunchedEffect(selectedSortType) {
+        itemAnimationsEnabled = selectedSortType == SortType.CUSTOM
     }
 
 
@@ -216,98 +203,45 @@ fun HomeContent(
         state = lazyListState,
         modifier = modifier
             .then(
-                if (sortType == SortType.CUSTOM) Modifier.background(
+                if (selectedSortType == SortType.CUSTOM) Modifier.background(
                     CardDefaults.cardColors().containerColor, shape = RoundedCornerShape(
                         largeRadius
                     )
                 ) else Modifier
             )
     ) {
-        if (tasks.isEmpty()) {
-            // 1. Header (Empty state)
-            item(key = "empty_card") {
-                Card(shape = listItemShapes.emptyShape) {
-                    TaskListHeader(
-                        sortType,
-                        setSortType,
-                        onDeleteAllCompleted = onDeleteAllCompletedTasks
-                    )
-                    FilterRow(
-                        selectedFilter = selectedFilter,
-                        setSelectedFilterType = onFilterChanged,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 8.dp)
-                    )
-                    EmptyScreen(
-                        totalTaskCount = totalTaskCount,
-                        selectedFilter = selectedFilter,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
+        if (taskSections.isEmpty()) {
+            headerWithEmptyStateItem(
+                noTasks = noTasks,
+                selectedFilter = selectedFilter,
+                onSelectFilter = onSelectFilter,
+                selectedSortType = selectedSortType,
+                onSelectSortType = onSelectSortType,
+                onDeleteAllCompletedTasks = onDeleteAllCompletedTasks,
+                shape = listItemShapes.emptyShape
+            )
         } else {
             // 2. Header (Non-empty state)
-            item(key = "header") {
-                Card(shape = listItemShapes.headerShape) {
-                    TaskListHeader(
-                        sortType,
-                        setSortType,
-                        onDeleteAllCompleted = onDeleteAllCompletedTasks
-                    )
-                    FilterRow(
-                        selectedFilter = selectedFilter,
-                        setSelectedFilterType = onFilterChanged,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 8.dp)
-                    )
-                }
-            }
+            headerItem(
+                selectedFilter = selectedFilter,
+                onSelectFilter = onSelectFilter,
+                selectedSortType = selectedSortType,
+                onSelectSortType = onSelectSortType,
+                onDeleteAllCompletedTasks = onDeleteAllCompletedTasks,
+                shape = listItemShapes.headerShape
+            )
 
             // 3. Sections
             sections.forEachIndexed { sectionIndex, section ->
                 // Section header, if any
                 section.header?.let { title ->
-                    item(key = "title_${title}") {
-                        Card(
-                            shape = listItemShapes.firstItemShape,
-                            modifier = Modifier.padding(top = 1.dp) // gap above section
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 16.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                if (sortType == SortType.CATEGORY) {
-                                    val category = section.items.first().category
-                                    category?.icon?.let {
-                                        Icon(
-                                            it.icon,
-                                            null,
-                                            tint = category.color?.toColor() ?: Color.Unspecified
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                    } ?: category?.color?.let {
-                                        ColorDot(color = it.toColor())
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                    }
-
-                                }
-
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = section.getHeaderDisplayColor(
-                                        sortType,
-                                        colorScheme
-                                    ),
-                                )
-                            }
-                        }
-                    }
+                    sectionHeader(
+                        title = title,
+                        selectedSortType = selectedSortType,
+                        shape = listItemShapes.firstItemShape,
+                        color = section.getHeaderDisplayColor(selectedSortType, colorScheme),
+                        category = section.items.first().category
+                    )
                 }
 
                 // Section Item
@@ -323,11 +257,12 @@ fun HomeContent(
                                 task,
                             )
                         },
-                        sortType = sortType,
+                        onStar = { onStar(task) },
+                        sortType = selectedSortType,
                         saveOrder = {
                             saveOrder(reorderableList.toList())
                         },
-                        enabled = sortType == SortType.CUSTOM && selectedFilter == FilterType.ALL,
+                        enabled = selectedSortType == SortType.CUSTOM && selectedFilter == FilterType.ALL,
                         shape = when {
                             isLast && sectionIndex == sections.lastIndex -> listItemShapes.bottomItemShape
                             isLast -> listItemShapes.lastItemShape
@@ -343,140 +278,11 @@ fun HomeContent(
 
     if (showQuickAddSheet) {
         QuickAddSheet(
-            taskDraftState = taskDraftState,
+            taskEditorState = taskEditorState,
             onDismiss = onDismissQuickAddSheet,
             onAddTask = onAddTask,
             navigateToRepeatForm = navigateToRepeatForm,
             modifier = Modifier
-        )
-    }
-}
-
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-private fun HomeContentWithSectionsPrev() {
-    AppTheme {
-        HomeContent(
-            tasks = sampleTodos,
-            totalTaskCount = sampleTodos.size,
-            onTaskClicked = {},
-            onTaskCompletionToggled = {},
-            showQuickAddSheet = false,
-            onDismissQuickAddSheet = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            onAddTask = {},
-            selectedFilter = FilterType.ALL,
-            sortType = SortType.DEADLINE,
-            setSortType = {},
-            saveOrder = {},
-            onFilterChanged = {},
-            onDeleteAllCompletedTasks = {},
-            modifier = Modifier.padding(16.dp),
-        )
-    }
-}
-
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-private fun HomeContentFlatPrev() {
-    AppTheme {
-        HomeContent(
-            tasks = sampleTodos,
-            totalTaskCount = sampleTodos.size,
-            onTaskClicked = {},
-            onTaskCompletionToggled = {},
-            showQuickAddSheet = false,
-            onDismissQuickAddSheet = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            onAddTask = {},
-            selectedFilter = FilterType.ALL,
-            sortType = SortType.CUSTOM,
-            setSortType = {},
-            saveOrder = {},
-            onFilterChanged = {},
-            onDeleteAllCompletedTasks = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-private fun HomeContentEmptyPrev() {
-    AppTheme {
-        HomeContent(
-            tasks = listOf(),
-            totalTaskCount = 0,
-            onTaskClicked = {},
-            onTaskCompletionToggled = {},
-            showQuickAddSheet = false,
-            onDismissQuickAddSheet = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            onAddTask = {},
-            selectedFilter = FilterType.ALL,
-            sortType = SortType.DEADLINE,
-            setSortType = {},
-            saveOrder = {},
-            onFilterChanged = {},
-            onDeleteAllCompletedTasks = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-private fun HomeContentWithSectionsSinglePrev() {
-    AppTheme {
-        HomeContent(
-            tasks = listOf(
-                sampleTodos.first()
-            ),
-            totalTaskCount = 1,
-            onTaskClicked = {},
-            onTaskCompletionToggled = {},
-            showQuickAddSheet = false,
-            onDismissQuickAddSheet = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            onAddTask = {},
-            selectedFilter = FilterType.ALL,
-            sortType = SortType.DEADLINE,
-            setSortType = {},
-            saveOrder = {},
-            onFilterChanged = {},
-            onDeleteAllCompletedTasks = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-private fun HomeContentFlaySinglePrev() {
-    AppTheme {
-        HomeContent(
-            tasks = listOf(
-                sampleTodos.first()
-            ),
-            totalTaskCount = 1,
-            onTaskClicked = {},
-            onTaskCompletionToggled = {},
-            showQuickAddSheet = false,
-            onDismissQuickAddSheet = {},
-            taskDraftState = TaskDraftState(),
-            navigateToRepeatForm = {},
-            onAddTask = {},
-            selectedFilter = FilterType.ALL,
-            sortType = SortType.CUSTOM,
-            setSortType = {},
-            saveOrder = {},
-            onFilterChanged = {},
-            onDeleteAllCompletedTasks = {},
-            modifier = Modifier.padding(16.dp)
         )
     }
 }

@@ -71,13 +71,12 @@ fun TaskScreen(
     navigateToRepeatForm: (Reminder?) -> Unit,
     navigateToEditCategories: () -> Unit,
     viewModel: TaskViewModel = hiltViewModel(),
+    taskActionViewModel: TaskActionViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     val currentTask by viewModel.currentTask.collectAsStateWithLifecycle()
     val categories by viewModel.categories.collectAsStateWithLifecycle()
-    val taskActionViewModel: TaskActionViewModel =
-        hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
 
     BackHandler {
         coroutineScope.launch {
@@ -89,6 +88,8 @@ fun TaskScreen(
     Scaffold(
         topBar = {
             TaskAppBar(
+                isStarred = currentTask?.starred == true,
+                toggleStarred = viewModel::toggleStarred,
                 navigateBack = {
                     coroutineScope.launch {
                         viewModel.saveTask()

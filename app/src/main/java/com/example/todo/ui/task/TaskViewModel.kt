@@ -151,4 +151,10 @@ class TaskViewModel @Inject constructor(
             onSelectCategory(categoryId)
         }
     }
+
+    fun toggleStarred() {
+        viewModelScope.launch {
+            taskRepository.toggleStarred(taskId)
+        }
+    }
 }

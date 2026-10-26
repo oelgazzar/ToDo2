@@ -1,6 +1,5 @@
 package com.example.todo.ui.home
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,51 +16,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.todo.R
 import com.example.todo.ui.components.FilterType
 import com.example.todo.ui.theme.AppTheme
-
-data class EmptyStateUI(
-    @DrawableRes val image: Int,
-    val title: String,
-    val description: String
-)
-
-fun FilterType.toEmptyStateUI(totalTaskCount: Int) = when (totalTaskCount) {
-    0 -> EmptyStateUI(
-        image = R.drawable.no_tasks,
-        title = "No tasks available",
-        description = "Tap + to add new task"
-    )
-
-    else -> when (this) {
-        FilterType.ALL -> EmptyStateUI(
-            image = R.drawable.no_tasks,
-            title = "No tasks available",
-            description = "Tap + to add new task"
-        )
-
-        FilterType.COMPLETED -> EmptyStateUI(
-            image = R.drawable.no_completed,
-            title = "No completed tasks.",
-            description = "You can do it"
-        )
-
-        FilterType.ACTIVE -> EmptyStateUI(
-            image = R.drawable.all_completed,
-            title = "All tasks completed",
-            description = "Nice work!"
-        )
-    }
-}
+import com.example.todo.ui.utils.toEmptyStateUI
 
 @Composable
 fun EmptyScreen(
-    totalTaskCount: Int,
+    noTasks: Boolean,
     selectedFilter: FilterType,
     modifier: Modifier = Modifier
 ) {
-    val emptyStateUI = selectedFilter.toEmptyStateUI(totalTaskCount)
+    val emptyStateUI = selectedFilter.toEmptyStateUI(noTasks)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -92,7 +58,7 @@ fun EmptyScreen(
 private fun EmptyHomeContentPrev() {
     AppTheme {
         EmptyScreen(
-            totalTaskCount = 0,
+            noTasks = true,
             selectedFilter = FilterType.COMPLETED
         )
     }

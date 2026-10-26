@@ -14,16 +14,12 @@ data class TaskSection(
 
 fun List<Task>.toTaskSections(sortType: SortType): List<TaskSection> {
     return when (sortType) {
-        SortType.CUSTOM -> listOf(
-            TaskSection(
-                items = this
-            )
-        )
-        SortType.TITLE -> listOf(
-            TaskSection(
-                items = this.sortedBy { it.title }
-            )
-        )
+        SortType.CUSTOM -> this.groupBy { Unit }
+            .map { entry -> TaskSection(items = entry.value) }
+
+        SortType.TITLE -> this.groupBy { Unit }
+            .map { entry -> TaskSection(items = entry.value.sortedBy { it.title }) }
+
         SortType.DEADLINE -> {
             this.groupBy {
                 val dueDate = it.schedule.dueDate

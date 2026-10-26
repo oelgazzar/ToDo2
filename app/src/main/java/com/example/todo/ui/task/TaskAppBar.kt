@@ -20,11 +20,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.test.arrow_back
 import com.example.test.more_vert
+import com.example.test.star
+import com.example.test.star_filled
 import com.example.todo.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskAppBar(
+    isStarred: Boolean,
+    toggleStarred: () -> Unit,
     navigateBack: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -44,6 +48,11 @@ fun TaskAppBar(
             containerColor = Color.Transparent
         ),
         actions = {
+            IconButton(
+                onClick = toggleStarred,
+            ) {
+                Icon(if (isStarred) star_filled else star, null)
+            }
             Box() {
                 IconButton(
                     onClick = { expanded = true },
@@ -75,6 +84,8 @@ fun TaskAppBar(
 private fun TaskAppBarPrev() {
     AppTheme {
         TaskAppBar(
+            isStarred = true,
+            toggleStarred = {},
             onDelete = {},
             navigateBack = {}
         )

@@ -25,6 +25,7 @@ fun LazyItemScope.ReorderableTaskItem(
     taskItem: Task,
     onTaskClicked: () -> Unit,
     onTaskCompletionToggled: () -> Unit,
+    onStar: () -> Unit,
     sortType: SortType,
     saveOrder: () -> Unit,
     modifier: Modifier = Modifier,
@@ -47,6 +48,7 @@ fun LazyItemScope.ReorderableTaskItem(
             task = taskItem,
             onTaskClicked = onTaskClicked,
             onToggleCompleted = onTaskCompletionToggled,
+            onStar = onStar,
             shape = if (isDragging) RectangleShape else shape,
             sortType = sortType,
             modifier = Modifier

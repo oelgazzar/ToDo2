@@ -1,9 +1,11 @@
 package com.example.todo.ui.navigation
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -34,7 +36,8 @@ fun AppNavHost(
         composable<Home> {
             HomeScreen(
                 navigateToTaskScreen = { navController.navigate(TaskDetails(it)) },
-                navigateToRepeatFormScreen = { navController.navigate(RepeatForm(-1, it?.toString())) }
+                navigateToRepeatFormScreen = { navController.navigate(RepeatForm(-1, it?.toString())) },
+                taskActionViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
             )
         }
 
@@ -49,7 +52,8 @@ fun AppNavHost(
                     }
                 },
                 navigateToRepeatForm = { navController.navigate(RepeatForm(backStackEntry.toRoute<TaskDetails>().taskId, it?.toString())) },
-                navigateToEditCategories = { navController.navigate(EditCategories) }
+                navigateToEditCategories = { navController.navigate(EditCategories) },
+                taskActionViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
             )
         }
 

@@ -133,4 +133,6 @@ class TaskRepositoryImp @Inject constructor(
     }
 
     override suspend fun deleteAllCompleted() = taskDao.deleteAllCompleted()
+
+    override suspend fun toggleStarred(id: Long) = taskDao.toggleStarred(id)
 }

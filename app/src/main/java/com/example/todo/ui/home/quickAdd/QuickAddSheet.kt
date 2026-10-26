@@ -38,6 +38,7 @@ import com.example.test.menu_open
 import com.example.test.repeat
 import com.example.test.schedule
 import com.example.test.star
+import com.example.test.star_filled
 import com.example.todo.models.Reminder
 import com.example.todo.models.Repeat
 import com.example.todo.ui.components.FieldChip
@@ -46,14 +47,12 @@ import com.example.todo.ui.components.TransparentTextField
 import com.example.todo.ui.repeat.RepeatType
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.ui.utils.toDisplayText
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun QuickAddSheet(
-    taskDraftState: TaskDraftState,
+    taskEditorState: TaskEditorState,
     onAddTask: () -> Unit,
     onDismiss: () -> Unit,
     navigateToRepeatForm: (Reminder?) -> Unit,
@@ -91,7 +90,7 @@ fun QuickAddSheet(
         modifier = modifier
     ) {
         QuickAddSheetContent(
-            taskDraftState = taskDraftState,
+            taskEditorState = taskEditorState,
             titleFocusRequester = titleFocusRequester,
             detailsFocusRequester = detailsFocusRequester,
             onDismiss = {
@@ -109,10 +108,10 @@ fun QuickAddSheet(
 
     if (showReminderDialog) {
         ReminderDialog(
-            initialReminder = taskDraftState.reminder,
+            initialReminder = taskEditorState.reminder,
             onDismiss = { showReminderDialog = false },
             onConfirm = {
-                taskDraftState.updateReminder(it)
+                taskEditorState.updateReminder(it)
                 showReminderDialog = false
             },
             showRepeatForm = {
@@ -156,7 +155,7 @@ fun QuickAddSheet(
 
 @Composable
 fun QuickAddSheetContent(
-    taskDraftState: TaskDraftState,
+    taskEditorState: TaskEditorState,
     titleFocusRequester: FocusRequester,
     detailsFocusRequester: FocusRequester,
     onAddTask: () -> Unit,
@@ -183,7 +182,7 @@ fun QuickAddSheetContent(
     ) {
         // --------------------- title -------------------------- //
         TransparentTextField(
-            state = taskDraftState.title,
+            state = taskEditorState.title,
             placeholderText = "New Task",
             focusRequester = titleFocusRequester,
         )
@@ -192,7 +191,7 @@ fun QuickAddSheetContent(
         // --------------------- Details -------------------------- //
         if (showDetailsField) {
             TransparentTextField(
-                state = taskDraftState.details,
+                state = taskEditorState.details,
                 placeholderText = "Add details",
                 style = MaterialTheme.typography.bodyMedium,
                 focusRequester = detailsFocusRequester,
@@ -201,23 +200,23 @@ fun QuickAddSheetContent(
         }
 
         // --------------------- Reminder -------------------------- //
-        if (taskDraftState.reminder != null) {
+        if (taskEditorState.reminder != null) {
             FieldChip(
-                label = (taskDraftState.reminder as Reminder).toDisplayText(),
+                label = (taskEditorState.reminder as Reminder).toDisplayText(),
                 onClick = onShowReminderDialog,
-                isDismissible = taskDraftState.repeat == null,
-                onDismiss = { taskDraftState.updateReminder(null) },
+                isDismissible = taskEditorState.repeat == null,
+                onDismiss = { taskEditorState.updateReminder(null) },
                 icon = schedule
             )
         }
 
         // --------------------- Repeat -------------------------- //
-        if (taskDraftState.repeat != null) {
+        if (taskEditorState.repeat != null) {
             FieldChip(
-                label = (taskDraftState.repeat as Repeat).toDisplayText(),
-                onClick = { navigateToRepeatForm(taskDraftState.reminder) },
+                label = (taskEditorState.repeat as Repeat).toDisplayText(),
+                onClick = { navigateToRepeatForm(taskEditorState.reminder) },
                 isDismissible = true,
-                onDismiss = { taskDraftState.updateRepeat(null) },
+                onDismiss = { taskEditorState.updateRepeat(null) },
                 icon = repeat
             )
         }
@@ -249,12 +248,12 @@ fun QuickAddSheetContent(
             )
 
             Icon(
-                star,
+                if (taskEditorState.starred) star_filled else star,
                 null,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
-                        onClick = {}
+                        onClick = taskEditorState::toggleStarred
                     )
             )
 
@@ -266,7 +265,7 @@ fun QuickAddSheetContent(
                     onAddTask()
                     onDismiss()
                 },
-                enabled = !taskDraftState.isEmpty,
+                enabled = !taskEditorState.isEmpty,
             ) {
                 Text("Save")
             }
@@ -280,7 +279,7 @@ fun QuickAddSheetContent(
 private fun QuickAddSheetContentPrev() {
     AppTheme {
         QuickAddSheetContent(
-            taskDraftState = TaskDraftState(
+            taskEditorState = TaskEditorState(
                 reminder = Reminder(
                     date = LocalDate.now(),
                     time = null

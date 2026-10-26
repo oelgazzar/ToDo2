@@ -64,4 +64,7 @@ interface TaskDao {
     @Query("DELETE FROM task WHERE completedAt IS NOT NULL")
     suspend fun deleteAllCompleted()
 
+    @Query("UPDATE task SET starred = NOT starred WHERE id = :id")
+    suspend fun toggleStarred(id: Long)
+
 }
