@@ -22,7 +22,6 @@ fun App() {
     Surface {
         AppNavHost()
     }
-//    EditCategoriesScreen()
 }
 
 @Preview(showBackground = true)
