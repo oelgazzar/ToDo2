@@ -7,6 +7,7 @@ import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface TaskDao {
@@ -37,6 +38,9 @@ interface TaskDao {
     @Query("UPDATE task SET completed = NOT completed WHERE id = :taskId")
     suspend fun toggleCompleted(taskId: Long)
 
+    @Query("UPDATE task SET completedAt = :now WHERE id = :taskId")
+    suspend fun updateCompleted(taskId: Long, now: LocalDate?)
+
     @Query("UPDATE task SET dueDate = :date WHERE id = :taskId")
     suspend fun updateDueDate(taskId: Long, date: String?)
 
@@ -56,4 +60,8 @@ interface TaskDao {
 
     @Query("UPDATE task SET categoryId = :categoryId WHERE id = :taskId")
     suspend fun updateCategory(taskId: Long, categoryId: Long?)
+
+    @Query("DELETE FROM task WHERE completedAt IS NOT NULL")
+    suspend fun deleteAllCompleted()
+
 }

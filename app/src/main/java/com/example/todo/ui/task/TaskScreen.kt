@@ -177,8 +177,19 @@ fun TaskScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp)
+                .padding(bottom = 4.dp)
         )
+
+        currentTask?.completedAt?.let { date ->
+            Text(
+                "Completed: ${date.toFormattedString()}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+            )
+        }
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
@@ -332,7 +343,7 @@ fun TaskScreenContent(
             onClick = toggleCompleted,
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text(if (currentTask?.completed == true) "Mark uncompleted" else "Mark completed")
+            Text(if (currentTask?.isCompleted == true) "Mark uncompleted" else "Mark completed")
         }
     }
 
@@ -383,6 +394,7 @@ private fun TaskScreenContentPrev() {
                 title = "Task 1",
                 schedule = Schedule(dueDate = LocalDate.now()),
                 position = -1,
+                completedAt = LocalDate.of(2026, 9, 17),
             ),
             toggleCompleted = {},
             onDueDateChanged = {},

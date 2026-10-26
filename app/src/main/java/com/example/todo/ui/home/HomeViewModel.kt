@@ -100,8 +100,8 @@ class HomeViewModel @Inject constructor(
 
     private fun List<Task>.applyFilter(filter: FilterType) = when (filter) {
         FilterType.ALL -> this
-        FilterType.COMPLETED -> filter { it.completed }
-        FilterType.ACTIVE -> filter { !it.completed }
+        FilterType.COMPLETED -> filter { it.isCompleted }
+        FilterType.ACTIVE -> filter { !it.isCompleted }
     }
 
     fun saveOrder(tasks: List<Task>) {
@@ -113,6 +113,12 @@ class HomeViewModel @Inject constructor(
     fun setSortType(sortType: SortType) {
         viewModelScope.launch {
             preferenceRepository.saveSortType(sortType)
+        }
+    }
+
+    fun deleteAllCompleted() {
+        viewModelScope.launch {
+            repository.deleteAllCompleted()
         }
     }
 }

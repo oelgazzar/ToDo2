@@ -45,7 +45,18 @@ class TaskRepositoryImp @Inject constructor(
         details: String
     ) = taskDao.updateTaskContent(taskId, title, details)
 
-    override suspend fun toggleCompleted(taskId: Long) = taskDao.toggleCompleted(taskId)
+//    override suspend fun toggleCompleted(taskId: Long) = taskDao.toggleCompleted(taskId)
+
+    override suspend fun toggleCompleted(taskId: Long) {
+        db.withWriteTransaction {
+            val task = taskDao.getTaskOnce(taskId)?:return@withWriteTransaction
+            task.completedAt?.let {
+                taskDao.updateCompleted(taskId, null)
+            } ?: run {
+                taskDao.updateCompleted(taskId, LocalDate.now())
+            }
+        }
+    }
 
     override suspend fun updateDueDate(taskId: Long, date: LocalDate?) {
         db.withWriteTransaction {
@@ -120,4 +131,6 @@ class TaskRepositoryImp @Inject constructor(
     override suspend fun updateCategory(taskId: Long, categoryId: Long?) {
         taskDao.updateCategory(taskId, categoryId)
     }
+
+    override suspend fun deleteAllCompleted() = taskDao.deleteAllCompleted()
 }

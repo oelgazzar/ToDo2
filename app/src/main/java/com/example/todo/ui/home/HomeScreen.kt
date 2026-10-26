@@ -123,6 +123,7 @@ fun HomeScreen(
                     totalTaskCount = uiState.taskCount,
                     selectedFilter = uiState.filter,
                     onFilterChanged = homeViewModel::updateFilter,
+                    onDeleteAllCompletedTasks = homeViewModel::deleteAllCompleted,
                     // Sorting
                     taskSections = uiState.taskSections,
                     saveOrder = homeViewModel::saveOrder,
@@ -159,6 +160,7 @@ fun HomeContent(
     totalTaskCount: Int,
     selectedFilter: FilterType,
     onFilterChanged: (FilterType) -> Unit,
+    onDeleteAllCompletedTasks: () -> Unit,
 
     // Sorting
     taskSections: List<TaskSection> = listOf(),
@@ -225,7 +227,11 @@ fun HomeContent(
             // 1. Header (Empty state)
             item(key = "empty_card") {
                 Card(shape = listItemShapes.emptyShape) {
-                    TaskListHeader(sortType, setSortType)
+                    TaskListHeader(
+                        sortType,
+                        setSortType,
+                        onDeleteAllCompleted = onDeleteAllCompletedTasks
+                    )
                     FilterRow(
                         selectedFilter = selectedFilter,
                         setSelectedFilterType = onFilterChanged,
@@ -244,7 +250,11 @@ fun HomeContent(
             // 2. Header (Non-empty state)
             item(key = "header") {
                 Card(shape = listItemShapes.headerShape) {
-                    TaskListHeader(sortType, setSortType)
+                    TaskListHeader(
+                        sortType,
+                        setSortType,
+                        onDeleteAllCompleted = onDeleteAllCompletedTasks
+                    )
                     FilterRow(
                         selectedFilter = selectedFilter,
                         setSelectedFilterType = onFilterChanged,
@@ -361,6 +371,7 @@ private fun HomeContentWithSectionsPrev() {
             setSortType = {},
             saveOrder = {},
             onFilterChanged = {},
+            onDeleteAllCompletedTasks = {},
             modifier = Modifier.padding(16.dp),
         )
     }
@@ -385,6 +396,7 @@ private fun HomeContentFlatPrev() {
             setSortType = {},
             saveOrder = {},
             onFilterChanged = {},
+            onDeleteAllCompletedTasks = {},
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -409,6 +421,7 @@ private fun HomeContentEmptyPrev() {
             setSortType = {},
             saveOrder = {},
             onFilterChanged = {},
+            onDeleteAllCompletedTasks = {},
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -435,6 +448,7 @@ private fun HomeContentWithSectionsSinglePrev() {
             setSortType = {},
             saveOrder = {},
             onFilterChanged = {},
+            onDeleteAllCompletedTasks = {},
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -461,6 +475,7 @@ private fun HomeContentFlaySinglePrev() {
             setSortType = {},
             saveOrder = {},
             onFilterChanged = {},
+            onDeleteAllCompletedTasks = {},
             modifier = Modifier.padding(16.dp)
         )
     }

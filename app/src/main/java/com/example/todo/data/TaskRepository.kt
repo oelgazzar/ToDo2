@@ -20,4 +20,5 @@ interface TaskRepository {
     suspend fun removeRepeat(taskId: Long)
     suspend fun updatePositions(tasks: List<Task>)
     suspend fun updateCategory(taskId: Long, categoryId: Long?)
+    suspend fun deleteAllCompleted()
 }

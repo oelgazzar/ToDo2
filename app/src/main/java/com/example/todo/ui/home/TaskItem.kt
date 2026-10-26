@@ -65,9 +65,9 @@ fun TaskItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    if (task.completed) check else radio_button_unchecked,
+                    if (task.isCompleted) check else radio_button_unchecked,
                     null,
-                    tint = if (task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    tint = if (task.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(24.dp)
                         .clickable(
@@ -77,7 +77,7 @@ fun TaskItem(
 
                 Text(
                     text = task.title,
-                    textDecoration = if (task.completed) TextDecoration.LineThrough else null,
+                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
                     modifier = Modifier.padding(start = 16.dp)
                 )
 

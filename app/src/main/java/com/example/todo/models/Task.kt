@@ -8,10 +8,13 @@ data class Task(
     val details: String? = null,
     val category: Category? = null,
     val completed: Boolean = false,
+    val completedAt: LocalDate? = null,
     val createdAt: LocalDate = LocalDate.now(),
     val schedule: Schedule = Schedule(),
     val position: Long
 ) {
     val isRepeatable: Boolean
         get() = schedule.repeat != null
+    val isCompleted: Boolean
+        get() = completedAt != null
 }

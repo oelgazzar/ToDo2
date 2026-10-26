@@ -18,6 +18,7 @@ import com.example.todo.models.SortType
 fun TaskListHeader(
     sortType: SortType,
     setSortType: (SortType) -> Unit,
+    onDeleteAllCompleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showSortingMenu by remember { mutableStateOf(false) }
@@ -49,6 +50,6 @@ fun TaskListHeader(
             expanded = showTasksMenu,
             onExpand = { showTasksMenu = true },
             onDismiss = { showTasksMenu = false },
-            onDeleteCompletedTasks = {})
+            onDeleteCompletedTasks = onDeleteAllCompleted)
     }
 }

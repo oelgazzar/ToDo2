@@ -103,10 +103,10 @@ class TaskViewModel @Inject constructor(
     // Flush text and toggle complete state
     suspend fun toggleCompleted(): Boolean {
         currentTask.value?.let { task ->
-            val isCompleted = task.completed
+            val isCompleted = task.completedAt != null
             taskRepository.upsertTask(
                 task.copy(
-                    completed = !task.completed,
+                    completedAt = if (isCompleted) null else LocalDate.now(),
                     // Flush text
                     title = titleFieldState.text.toString(),
                     details = detailsFieldState.text.toString().ifBlank { null }

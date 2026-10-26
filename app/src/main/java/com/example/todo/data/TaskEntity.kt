@@ -25,6 +25,7 @@ data class TaskEntity(
     val details: String? = null,
     val categoryId: Long? = null,
     val completed: Boolean = false,
+    val completedAt: LocalDate? = null,
     val dueDate: String? = null,
     val createdAt: String = LocalDate.now().toString(),
     @Embedded(prefix = "schedule_")
@@ -38,6 +39,7 @@ fun Task.toEntity(): TaskEntity {
         title = title,
         details = details,
         completed = completed,
+        completedAt = completedAt,
         createdAt = createdAt.toString(),
         schedule = schedule,
         position = position,
