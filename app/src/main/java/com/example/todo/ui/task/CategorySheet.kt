@@ -22,11 +22,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +47,7 @@ import com.example.todo.models.CategoryIcon
 import com.example.todo.models.utils.toColor
 import com.example.todo.ui.components.ColorDot
 import com.example.todo.ui.theme.AppTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +56,15 @@ fun CategorySheet(
     selectedId: Long?,
     onSelect: (Long?) -> Unit,          // null = no category
     onCreate: (String) -> Unit,         // ViewModel creates + selects
+    onEdit: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         dragHandle = null
     ) {
         CategorySheetContent(
@@ -64,6 +72,12 @@ fun CategorySheet(
             selectedId = selectedId,
             onSelect = onSelect,
             onCreate = onCreate,
+            onEdit = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                    onEdit()
+                }
+            },
             onDismiss = onDismiss
         )
     }
@@ -75,6 +89,7 @@ fun CategorySheetContent(
     selectedId: Long?,
     onSelect: (Long?) -> Unit,          // null = no category
     onCreate: (String) -> Unit,         // ViewModel creates + selects
+    onEdit: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     initiallyAdding: Boolean = false
@@ -106,7 +121,7 @@ fun CategorySheetContent(
         ) {
             Text("Category", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = {}) {
+            TextButton(onClick = onEdit) {
                 Text("Edit")
             }
         }
@@ -197,6 +212,7 @@ private fun CategorySheetPrev() {
                 selectedId = 1,
                 onSelect = {},
                 onCreate = {},
+                onEdit = {},
                 onDismiss = {},
             )
         }
@@ -231,6 +247,7 @@ private fun CategorySheetAddingPrev() {
                 selectedId = 1,
                 onSelect = {},
                 onCreate = {},
+                onEdit = {},
                 onDismiss = {},
                 initiallyAdding = true
             )

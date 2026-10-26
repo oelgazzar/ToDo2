@@ -118,4 +118,16 @@ class FakeTaskRepository @Inject constructor(
             }
         }
     }
+
+    override suspend fun removeRepeat(taskId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updatePositions(tasks: List<Task>) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateCategory(taskId: Long, categoryId: Long?) {
+        TODO("Not yet implemented")
+    }
 }

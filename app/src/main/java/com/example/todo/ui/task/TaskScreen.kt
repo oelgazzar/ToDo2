@@ -69,6 +69,7 @@ data class TaskDetails(val taskId: Long)
 fun TaskScreen(
     navigateBack: () -> Unit,
     navigateToRepeatForm: (Reminder?) -> Unit,
+    navigateToEditCategories: () -> Unit,
     viewModel: TaskViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -120,6 +121,7 @@ fun TaskScreen(
             categories = categories,
             onSelectCategory = viewModel::onSelectCategory,
             onCreateCategory = viewModel::onCreateCategory,
+            onEditCategories = navigateToEditCategories,
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
@@ -158,6 +160,7 @@ fun TaskScreenContent(
     categories: List<Category>,
     onSelectCategory: (Long?) -> Unit,
     onCreateCategory: (String) -> Unit,
+    onEditCategories: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -362,6 +365,7 @@ fun TaskScreenContent(
             selectedId = currentTask?.category?.id,
             onSelect = onSelectCategory,
             onCreate = onCreateCategory,
+            onEdit = onEditCategories,
             onDismiss = { showCategorySheet = false}
         )
     }
@@ -388,6 +392,7 @@ private fun TaskScreenContentPrev() {
             categories = listOf(),
             onSelectCategory = {},
             onCreateCategory = {},
+            onEditCategories = {},
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)

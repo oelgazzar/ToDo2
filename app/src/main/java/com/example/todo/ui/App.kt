@@ -7,6 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.todo.ui.navigation.AppNavHost
 import com.example.todo.ui.theme.AppTheme
 import com.example.todo.notifications.rememberNotificationPermissionState
+import com.example.todo.ui.categories.EditCategoriesScreen
 
 @Composable
 fun App() {
@@ -21,6 +22,7 @@ fun App() {
     Surface {
         AppNavHost()
     }
+//    EditCategoriesScreen()
 }
 
 @Preview(showBackground = true)

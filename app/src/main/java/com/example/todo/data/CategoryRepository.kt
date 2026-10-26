@@ -32,4 +32,8 @@ class CategoryRepository @Inject constructor(
             categoryDao.upsertCategory(entity)
         }
     }
+
+    suspend fun deleteCategory(category: Category) {
+        categoryDao.deleteCategory(category.id)
+    }
 }
